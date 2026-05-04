@@ -6,23 +6,23 @@ A comprehensive build plan for `eloyye.com`: a personal site with About, Work, C
 
 ## 1. Stack Summary
 
-| Layer | Choice | Notes |
-|---|---|---|
-| Package manager / runtime | Bun | Fast installs, native TS |
-| Build tool | Vite | RR7's official build pipeline |
-| Framework | React Router v7 (SSG / prerender mode) | Full static output |
-| Language | TypeScript (strict) | |
-| UI primitives | shadcn/ui | Copy-in components, owned by repo |
-| Styling | Tailwind CSS v4 | Utility-first |
-| Content | MDX (`.mdx` in repo) | Posts + Projects |
-| MDX bundler | `@mdx-js/rollup` via Vite | |
-| Syntax highlight | `rehype-pretty-code` (Shiki under the hood) | Build-time, zero runtime JS |
-| Hosting | Cloudflare Pages (static) | Free tier |
-| Contact form backend | Cloudflare Pages Function → MailChannels | Free, no API key |
-| Spam protection | Cloudflare Turnstile | Free, privacy-friendly |
-| Analytics | Cloudflare Web Analytics | Free, cookieless |
-| Domain | `eloyye.com` (already owned) | Move DNS to Cloudflare |
-| RSS / sitemap | Generated at build from MDX frontmatter | |
+| Layer                     | Choice                                      | Notes                             |
+| ------------------------- | ------------------------------------------- | --------------------------------- |
+| Package manager / runtime | Bun                                         | Fast installs, native TS          |
+| Build tool                | Vite                                        | RR7's official build pipeline     |
+| Framework                 | React Router v7 (SSG / prerender mode)      | Full static output                |
+| Language                  | TypeScript (strict)                         |                                   |
+| UI primitives             | shadcn/ui                                   | Copy-in components, owned by repo |
+| Styling                   | Tailwind CSS v4                             | Utility-first                     |
+| Content                   | MDX (`.mdx` in repo)                        | Posts + Projects                  |
+| MDX bundler               | `@mdx-js/rollup` via Vite                   |                                   |
+| Syntax highlight          | `rehype-pretty-code` (Shiki under the hood) | Build-time, zero runtime JS       |
+| Hosting                   | Cloudflare Pages (static)                   | Free tier                         |
+| Contact form backend      | Cloudflare Pages Function → MailChannels    | Free, no API key                  |
+| Spam protection           | Cloudflare Turnstile                        | Free, privacy-friendly            |
+| Analytics                 | Cloudflare Web Analytics                    | Free, cookieless                  |
+| Domain                    | `eloyye.com` (already owned)                | Move DNS to Cloudflare            |
+| RSS / sitemap             | Generated at build from MDX frontmatter     |                                   |
 
 **Non-goals:** comments, server-rendered dynamic pages, search-as-a-service, image CDN beyond Cloudflare's defaults.
 
@@ -79,6 +79,7 @@ A comprehensive build plan for `eloyye.com`: a personal site with About, Work, C
 ```
 
 **Notes:**
+
 - Use `app/` (RR7 default) rather than `src/`.
 - Keep MDX content under `app/content/` so Vite's module graph picks it up; alternatively place at repo root and configure Vite `resolve.alias`.
 - `functions/` is the Cloudflare Pages convention — files map to routes automatically.
@@ -104,20 +105,23 @@ Each phase ends in a deployable, working site. Don't move on until the previous 
 3. Configure `react-router.config.ts` for SSG:
    ```ts
    export default {
-     ssr: false,           // pure static
-     prerender: true,      // RR7 will prerender all known routes
+     ssr: false, // pure static
+     prerender: true, // RR7 will prerender all known routes
    } satisfies Config;
    ```
 4. Install Tailwind v4: `bun add -D tailwindcss @tailwindcss/vite`. Add the Vite plugin and an `app.css` with `@import "tailwindcss";`.
 5. Init shadcn:
+
    ```
    bunx shadcn@latest init
    ```
+
    - Style: New York or Default
    - Base color: Neutral
    - CSS variables: yes
    - Component path: `~/components/ui`
    - Confirm `components.json` paths match RR7's `~/` alias (set in `tsconfig.json` and `vite.config.ts`).
+
 6. Add a placeholder `_index.tsx` with "Hello".
 7. Create Cloudflare Pages project:
    - Connect GitHub repo
@@ -129,6 +133,7 @@ Each phase ends in a deployable, working site. Don't move on until the previous 
 9. Verify HTTPS, redirect `www → apex` (or vice versa) via Pages redirects or a `_redirects` file in `public/`.
 
 **Edge cases to handle now:**
+
 - Apex vs `www` — pick a canonical and 301 the other.
 - HTTP → HTTPS — Pages does this automatically; verify in DevTools.
 - Trailing slash policy — RR7 prerenders without trailing slashes; configure `_redirects` if needed for consistency.
@@ -139,15 +144,15 @@ Each phase ends in a deployable, working site. Don't move on until the previous 
 **Goal:** `/blog/hello-world` renders an MDX file from the repo, fully prerendered.
 
 1. Install: `bun add @mdx-js/rollup remark-frontmatter remark-mdx-frontmatter remark-gfm rehype-slug rehype-autolink-headings rehype-pretty-code shiki gray-matter`.
-2. Configure `vite.config.ts` to add `mdx()` *before* `reactRouter()`:
+2. Configure `vite.config.ts` to add `mdx()` _before_ `reactRouter()`:
    ```ts
-   import mdx from "@mdx-js/rollup";
-   import remarkFrontmatter from "remark-frontmatter";
-   import remarkMdxFrontmatter from "remark-mdx-frontmatter";
-   import remarkGfm from "remark-gfm";
-   import rehypeSlug from "rehype-slug";
-   import rehypeAutolinkHeadings from "rehype-autolink-headings";
-   import rehypePrettyCode from "rehype-pretty-code";
+   import mdx from '@mdx-js/rollup';
+   import remarkFrontmatter from 'remark-frontmatter';
+   import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
+   import remarkGfm from 'remark-gfm';
+   import rehypeSlug from 'rehype-slug';
+   import rehypeAutolinkHeadings from 'rehype-autolink-headings';
+   import rehypePrettyCode from 'rehype-pretty-code';
    ```
    Plugin order matters: `mdx` must run before `reactRouter`.
 3. Create `app/lib/content.ts`:
@@ -158,9 +163,9 @@ Each phase ends in a deployable, working site. Don't move on until the previous 
    ```ts
    type PostFrontmatter = {
      title: string;
-     slug: string;            // canonical, used for URL
-     date: string;            // ISO 8601
-     description: string;     // for OG + RSS
+     slug: string; // canonical, used for URL
+     date: string; // ISO 8601
+     description: string; // for OG + RSS
      tags?: string[];
      draft?: boolean;
      ogImage?: string;
@@ -173,15 +178,21 @@ Each phase ends in a deployable, working site. Don't move on until the previous 
 7. **Prerender the slug list.** RR7's `prerender` option accepts either `true` (auto-discovered routes) or a function/array. For dynamic segments (`$slug`), provide an explicit list:
    ```ts
    prerender: async () => {
-     const slugs = await collectSlugs();           // reads MDX frontmatter
-     return ["/", "/work", "/contact", "/blog",
-             ...slugs.map(s => `/blog/${s}`)];
-   }
+     const slugs = await collectSlugs(); // reads MDX frontmatter
+     return [
+       '/',
+       '/work',
+       '/contact',
+       '/blog',
+       ...slugs.map((s) => `/blog/${s}`),
+     ];
+   };
    ```
 8. Author one real post `app/content/posts/hello-world.mdx` and verify the build outputs a static HTML file at `build/client/blog/hello-world/index.html`.
 
 **Edge cases:**
-- **Drafts:** filter from listings, RSS, sitemap, *and* the prerender list — but allow access in `import.meta.env.DEV`.
+
+- **Drafts:** filter from listings, RSS, sitemap, _and_ the prerender list — but allow access in `import.meta.env.DEV`.
 - **Unicode slugs:** normalize with `slugify` (lower-case, strip diacritics). Frontmatter `slug` is the source of truth, not the filename.
 - **Duplicate slugs:** fail the build loudly in `collectSlugs()`.
 - **Future-dated posts:** decide policy — exclude until publish date, or always show. Recommend exclude.
@@ -199,13 +210,14 @@ Each phase ends in a deployable, working site. Don't move on until the previous 
 2. Add shadcn primitives as needed: `button`, `card`, `separator`, `badge`, `input`, `textarea`, `label`, `sonner` (for toasts).
 3. Theme:
    - Use `next-themes`-equivalent for RR7 (e.g., a small client island reading `localStorage` + `prefers-color-scheme`)
-   - Avoid FOUC: inline a `<script>` in `root.tsx` `<head>` that sets the `class` on `<html>` *before* React hydrates
+   - Avoid FOUC: inline a `<script>` in `root.tsx` `<head>` that sets the `class` on `<html>` _before_ React hydrates
 4. Typography: `@tailwindcss/typography` for `prose` styling on blog posts. Customize the `prose` colors for dark mode.
 5. `/` (About): hand-written JSX — short bio, links, recent posts (top 3).
 6. `/work`: render from `app/content/projects/*.mdx`. Each project has frontmatter `{ title, summary, url, repo, tech[], year, featured }`. Render as cards.
 7. Accessibility checks: skip-to-content link, focus rings, semantic landmarks (`<header>`, `<main>`, `<footer>`, `<nav>`), `aria-current="page"` on active nav.
 
 **Edge cases:**
+
 - **Theme flash (FOUC):** the inline pre-hydration script is mandatory for static sites — without it dark mode flickers on every navigation.
 - **Long titles wrapping in cards:** clamp with `line-clamp-N` utility.
 - **No-JS fallback:** RR7 SSG ships JS for hydration but content is in HTML. Test with JS disabled — links should work, theme defaults to system.
@@ -242,6 +254,7 @@ Each phase ends in a deployable, working site. Don't move on until the previous 
 5. Test from Preview deploys before merging to Production.
 
 **Edge cases:**
+
 - **MailChannels free abuse policy:** they require the `_mailchannels` lockdown TXT or they will reject. Verify before going live.
 - **Turnstile token replay:** tokens are single-use; backend must verify each one and never trust the client.
 - **CORS:** Pages Function and form are same-origin → no CORS needed. If you ever split them, lock `Access-Control-Allow-Origin` to your domain only.
@@ -286,6 +299,7 @@ Each phase ends in a deployable, working site. Don't move on until the previous 
 8. **404 page:** `app/routes/$.tsx` catch-all with a friendly message and link home. Ensure it's prerendered to `404.html` (Pages serves this for unmatched routes).
 
 **Edge cases:**
+
 - **CSP + Turnstile + Web Analytics:** both inject `<script>` from Cloudflare domains. Test the policy before enforcing.
 - **OG images and crawler caching:** Twitter/Facebook cache aggressively. Append a `?v=2` query when you change them, or use the platform debugger to refresh.
 - **RSS breaking changes:** never reuse a slug — feed readers de-dupe by `<guid>`. Use the canonical post URL as the GUID.
@@ -296,11 +310,13 @@ Each phase ends in a deployable, working site. Don't move on until the previous 
 ## 4. Cross-cutting Concerns
 
 ### TypeScript hygiene
+
 - `"strict": true`, `"noUncheckedIndexedAccess": true`, `"verbatimModuleSyntax": true`
 - Path alias `~/*` → `./app/*`
 - Type MDX modules via a `mdx.d.ts` declaration
 
 ### Content authoring workflow
+
 1. Create `app/content/posts/<slug>.mdx` with frontmatter
 2. `bun dev` to preview locally
 3. Commit + push → Pages builds a Preview deploy on the branch
@@ -308,25 +324,30 @@ Each phase ends in a deployable, working site. Don't move on until the previous 
 5. Editing in IDE only — no CMS UI by design
 
 ### Local dev
+
 - `bun dev` for the app
 - `bunx wrangler pages dev build/client --compatibility-flag=nodejs_compat` to test Pages Functions locally with `.dev.vars`
 - For pure UI work, the Functions emulator isn't needed
 
 ### CI
+
 - Optional GitHub Action: typecheck + build on PR. Pages already builds on push, but a pre-merge typecheck is cheap insurance.
 - `bun run typecheck` (= `tsc --noEmit`), `bun run build`, `bun run lint` (Biome or ESLint — pick one)
 
 ### Error handling & observability
+
 - RR7 `ErrorBoundary` on root + per-route. Never leak stack traces in production.
 - Pages Functions: log via `console.error`; visible in Cloudflare dashboard → Functions → Real-time logs. Avoid logging PII (email addresses, message bodies).
 - Add a tiny client-side error reporter (optional): post to a Pages Function that logs to Logpush or just to console. Skip Sentry for cost.
 
 ### Backups & redundancy
+
 - Everything is in git → GitHub is the backup
 - Posts are plain MDX → portable to any static generator if you migrate
 - DNS is at Cloudflare → export zone file periodically
 
 ### Costs (expected $/month)
+
 - Cloudflare Pages: $0 (well within free tier)
 - Workers/Functions: $0 (100k requests/day free)
 - MailChannels: $0
@@ -342,6 +363,7 @@ Each phase ends in a deployable, working site. Don't move on until the previous 
 A consolidated reference — most are covered above in context, but worth scanning before each phase ships.
 
 ### Content
+
 - Duplicate slugs across posts/projects → fail build
 - Unicode in slugs → normalize via `slugify`
 - Drafts leaking into prod → exclude from list, RSS, sitemap, prerender
@@ -351,12 +373,14 @@ A consolidated reference — most are covered above in context, but worth scanni
 - MDX import at runtime → confirm tree-shaking; only the active post should be in its chunk
 
 ### Routing & SSG
+
 - Trailing-slash inconsistency → pick one, redirect the other
 - 404 for missing slug → throw `Response(null, { status: 404 })` from loader
 - Catch-all route prerendered as `404.html` and served by Pages
 - Hash-based fragment links (`#section`) → ensure `rehype-slug` runs before consumers
 
 ### Forms & email
+
 - Header injection via CR/LF → strip
 - Replay of Turnstile token → backend single-use validation
 - Rate limit bypass via rotating IPs → accept; add per-session limit if needed
@@ -364,22 +388,26 @@ A consolidated reference — most are covered above in context, but worth scanni
 - DMARC at `p=none` initially; tighten only after confirming legit mail passes
 
 ### Security
+
 - CSP allowlist must include Cloudflare Turnstile + Insights domains
 - Pages env vars must not leak to client — only `VITE_*` prefixed vars are exposed
 - Don't commit `.dev.vars` (gitignore it)
 
 ### Performance
+
 - LCP image: preload + `fetchpriority="high"`
 - Avoid layout shift: set `width`/`height` on all `<img>`
 - Bundle bloat from MDX: each post compiles to its own component; split with route chunks (RR7 default)
 
 ### SEO
+
 - Canonical URL meta on every page
 - One `<h1>` per page
 - Descriptive `<title>` and `meta description` per route
 - Submit sitemap to Google Search Console + Bing Webmaster Tools
 
 ### Domain / DNS
+
 - Email DNS records (SPF, DKIM, `_mailchannels`, DMARC) before going live with the contact form
 - Apex vs `www` canonical
 - Cloudflare proxy ON for the apex (orange cloud) — enables analytics, HTTPS, caching
@@ -405,13 +433,13 @@ Documenting explicitly to prevent scope creep:
 
 ## 7. Definition of Done (per phase)
 
-| Phase | Done means |
-|---|---|
-| 1 | `https://eloyye.com` returns 200, valid cert, deploys on push |
-| 2 | One MDX post live, prerendered, syntax highlighted, listed at `/blog` |
-| 3 | About + Work + layout + dark mode shipped, Lighthouse ≥ 95 across the board |
-| 4 | Contact form sends to your inbox, Turnstile blocks bots, DKIM/SPF/DMARC pass at mail-tester.com ≥ 9/10 |
-| 5 | RSS validates, sitemap submitted, analytics receiving events, security headers green on securityheaders.com |
+| Phase | Done means                                                                                                  |
+| ----- | ----------------------------------------------------------------------------------------------------------- |
+| 1     | `https://eloyye.com` returns 200, valid cert, deploys on push                                               |
+| 2     | One MDX post live, prerendered, syntax highlighted, listed at `/blog`                                       |
+| 3     | About + Work + layout + dark mode shipped, Lighthouse ≥ 95 across the board                                 |
+| 4     | Contact form sends to your inbox, Turnstile blocks bots, DKIM/SPF/DMARC pass at mail-tester.com ≥ 9/10      |
+| 5     | RSS validates, sitemap submitted, analytics receiving events, security headers green on securityheaders.com |
 
 ---
 

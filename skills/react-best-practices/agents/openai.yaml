@@ -1,0 +1,7 @@
+interface:
+  display_name: 'React Performance Best Practices'
+  short_description: 'Apply framework-neutral React performance guidance.'
+  default_prompt: 'Use $react-performance-best-practices to review or refactor this React code for performance without assuming any full-stack framework or deployment-provider APIs.'
+
+policy:
+  allow_implicit_invocation: true

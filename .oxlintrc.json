@@ -25,14 +25,13 @@
     "builtin": true
   },
   "settings": {
-    "react": { "version": "detect" }
+    "react": { "version": "19.2.4" }
   },
   "rules": {
     "eqeqeq": ["error", "always", { "null": "ignore" }],
     "no-var": "error",
     "prefer-const": "error",
     "prefer-template": "error",
-    "prefer-arrow-callback": "error",
     "object-shorthand": "error",
     "no-console": ["warn", { "allow": ["warn", "error"] }],
     "no-alert": "error",
@@ -47,10 +46,12 @@
     "default-case-last": "error",
     "radix": "error",
     "yoda": "error",
-    "spaced-comment": ["error", "always"],
     "symbol-description": "error",
 
-    "typescript/consistent-type-imports": "error",
+    "typescript/consistent-type-imports": [
+      "error",
+      { "prefer": "type-imports", "fixStyle": "inline-type-imports" }
+    ],
     "typescript/consistent-type-definitions": ["error", "type"],
     "typescript/no-explicit-any": "error",
     "typescript/no-non-null-assertion": "warn",
@@ -79,15 +80,14 @@
     "unicorn/prefer-number-properties": "error",
     "unicorn/no-instanceof-builtins": "error",
     "unicorn/filename-case": "off",
-    "unicorn/prevent-abbreviations": "off",
     "unicorn/no-null": "off",
 
-    "import/no-duplicates": "error",
+    "eslint/no-duplicate-imports": ["error", { "allowSeparateTypeImports": true }],
     "import/no-self-import": "error",
     "import/no-cycle": "error",
     "import/no-default-export": "off",
     "import/first": "error",
-    "import/newline-after-import": "error",
+    "import/no-named-export": "off",
 
     "react/self-closing-comp": "error",
     "react/jsx-key": "error",
@@ -130,12 +130,7 @@
       }
     },
     {
-      "files": [
-        "scripts/**/*.ts",
-        "*.config.ts",
-        "vite.config.ts",
-        "react-router.config.ts"
-      ],
+      "files": ["scripts/**/*.ts", "*.config.ts", "vite.config.ts", "react-router.config.ts"],
       "rules": {
         "no-console": "off",
         "import/no-default-export": "off"
