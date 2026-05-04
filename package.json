@@ -12,7 +12,9 @@
     "format": "oxfmt .",
     "format:write": "oxfmt --write .",
     "check": "npm run lint && npm run format && npm run typecheck",
-    "check:fix": "npm run lint:fix && npm run format:write"
+    "check:fix": "npm run lint:fix && npm run format:write",
+    "deploy": "react-router build && wrangler deploy",
+    "preview": "react-router build && wrangler dev"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
@@ -41,6 +43,7 @@
     "oxlint": "^1.62.0",
     "tailwindcss": "^4.2.2",
     "typescript": "^5.9.3",
-    "vite": "^8.0.3"
+    "vite": "^8.0.3",
+    "wrangler": "^4.87.0"
   }
 }
