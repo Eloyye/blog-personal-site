@@ -202,3 +202,7 @@ Temporary Items
 ## IDE
 .vscode/
 .idea/
+
+# React Router
+/.react-router/
+/build/
