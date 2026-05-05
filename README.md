@@ -1,87 +1,132 @@
-# Welcome to React Router!
+# eloyye.com
 
-A modern, production-ready template for building full-stack React applications using React Router.
+Personal site for `eloyye.com`, built as a static React Router v7 application with an MDX-powered blog. The project is planned around low operational cost on Cloudflare Pages and keeps content, UI, and deployment configuration owned in this repository.
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+See [docs/PLAN.md](docs/PLAN.md) for the full implementation plan and phase-by-phase roadmap.
 
-## Features
+## Overview
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+- **Framework:** React Router v7 in SSG/prerender mode
+- **Runtime and package manager:** Bun
+- **Build tool:** Vite
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS v4 with local UI primitives
+- **Content:** MDX blog posts in `app/content/posts`
+- **Syntax highlighting:** `rehype-pretty-code` with Shiki at build time
+- **Hosting target:** Cloudflare Pages at `eloyye.com`
 
-## Getting Started
+Current routes:
 
-### Installation
+- `/` — home page
+- `/blog` — published blog post index
+- `/blog/:slug` — prerendered MDX blog posts
 
-Install the dependencies:
+Planned routes and features include `/work`, `/contact`, project MDX entries, RSS, sitemap generation, Turnstile-protected contact form handling, and Cloudflare Web Analytics.
+
+## Project Structure
+
+```text
+app/
+  components/
+    mdx/              Shared MDX component overrides
+    ui/               Local UI primitives
+  content/
+    posts/            Blog posts as .mdx files
+  lib/
+    content.ts        Post discovery, frontmatter validation, reading time
+  routes/             React Router route modules
+  app.css             Tailwind entry
+  root.tsx            Document shell
+  routes.ts           Route config
+docs/
+  PLAN.md             Implementation roadmap
+public/
+  _redirects          Cloudflare Pages redirects
+scripts/
+  collect-slugs.ts    Build-time blog slug collection for prerendering
+```
+
+## Setup
+
+Use Bun for every project command.
 
 ```bash
-npm install
+bun install
 ```
 
-### Development
-
-Start the development server with HMR:
+Start the local development server:
 
 ```bash
-npm run dev
+bun run dev
 ```
 
-Your application will be available at `http://localhost:5173`.
+The site runs locally at `http://localhost:5173`.
 
-## Building for Production
-
-Create a production build:
+## Common Commands
 
 ```bash
-npm run build
+bun run dev           # Start the React Router dev server
+bun run build         # Create a production build
+bun run typecheck     # Generate route types and run TypeScript
+bun run lint          # Run oxlint
+bun run format        # Check formatting with oxfmt
+bun run test          # Run Vitest
+bun run check         # Typecheck, lint, format check, and test
+bun run check:fix     # Apply lint and format fixes
 ```
 
-## Deployment
+## Content
 
-### Docker Deployment
+Blog posts live in `app/content/posts/*.mdx`. Each post must define frontmatter with these required fields:
 
-To build and run using Docker:
-
-```bash
-docker build -t my-app .
-
-# Run the container
-docker run -p 3000:3000 my-app
-```
-
-The containerized application can be deployed to any platform that supports Docker, including:
-
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
-
-### DIY Deployment
-
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
-```
-
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
-
+```yaml
 ---
+title: "Post title"
+slug: "post-title"
+date: "2026-01-01"
+description: "Short summary for listings, RSS, and metadata."
+---
+```
 
-Built with ❤️ using React Router.
+Optional fields:
+
+```yaml
+tags:
+  - react
+draft: true
+ogImage: "/path-or-imported-image.png"
+```
+
+Post slugs are the canonical URL source, must already be normalized, and must be unique. Drafts and future-dated posts are excluded from production listings and prerendered output.
+
+## Build and Deployment
+
+Create a static production build:
+
+```bash
+bun run build
+```
+
+React Router prerenders the known routes plus the blog slugs returned by `scripts/collect-slugs.ts`. The Cloudflare Pages build should use:
+
+- **Build command:** `bun run build`
+- **Output directory:** `build/client`
+- **Runtime:** Bun
+
+`public/_redirects` is deployed with the static output and handles Cloudflare Pages redirects.
+
+## Contribution
+
+Before opening a change, run:
+
+```bash
+bun run check
+```
+
+Keep changes aligned with [docs/PLAN.md](docs/PLAN.md):
+
+- Use `app/` for React Router code.
+- Keep blog content in `app/content/posts`.
+- Prefer build-time/static behavior over runtime services.
+- Keep MDX frontmatter valid and fail builds loudly for duplicate or malformed slugs.
+- Do not commit secrets. Cloudflare values such as Turnstile secrets and MailChannels DKIM keys belong in Pages environment variables.
