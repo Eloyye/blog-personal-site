@@ -1,0 +1,26 @@
+---
+title: Hello World
+slug: hello-world
+date: "2026-05-05"
+description: The first MDX-powered post on eloyye.com.
+tags:
+  - site
+  - mdx
+---
+
+This is the first post in the new MDX pipeline. It exists to prove that content can live in the repo, export typed frontmatter, render through React Router, and ship as static HTML.
+
+## What this enables
+
+- Posts can include normal Markdown.
+- Frontmatter drives URLs, metadata, listings, and prerendered routes.
+- Code blocks are highlighted at build time.
+
+```ts
+const site = {
+  domain: "eloyye.com",
+  rendering: "static",
+};
+```
+
+From here, the site can grow without adding a runtime backend for the blog.

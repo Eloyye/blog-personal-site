@@ -143,3 +143,33 @@ body {
     @apply font-sans;
   }
 }
+
+@layer components {
+  .mdx-content {
+    @apply space-y-6 text-base leading-7 text-foreground;
+  }
+
+  .mdx-content h2 {
+    @apply mt-10 text-2xl font-semibold tracking-normal;
+  }
+
+  .mdx-content p {
+    @apply text-foreground;
+  }
+
+  .mdx-content ul {
+    @apply list-disc space-y-2 pl-6;
+  }
+
+  .mdx-content a {
+    @apply underline underline-offset-4;
+  }
+
+  .mdx-content code:not(pre code) {
+    @apply rounded bg-muted px-1.5 py-0.5 text-sm;
+  }
+
+  .mdx-content pre code {
+    @apply bg-transparent p-0;
+  }
+}
