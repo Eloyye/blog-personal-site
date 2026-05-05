@@ -3,7 +3,7 @@ name: quality-gate
 description: Run the project's TypeScript type-check, oxlint, and oxfmt formatting checks after editing any TypeScript or TSX file. Use whenever a change has been made to a `.ts`, `.tsx`, `.mts`, `.cts`, or `.d.ts` file in this repository (including new files, edits, refactors, renames, or moves). Acts as the local CI gate before reporting a task as complete.
 license: MIT
 metadata:
-  version: '1.0.0'
+  version: "1.0.0"
 ---
 
 # Quality Gate
@@ -64,7 +64,7 @@ bun run check:fix   # runs `oxlint --fix` then `oxfmt --write .`
 
 Then re-run `bun run check` to confirm everything is green. If `check:fix` resolves all failures, do not surface the original error to the user — just mention that the formatter/linter applied auto-fixes and the gate now passes.
 
-**Important:** never run `check:fix` blindly when the failure is a *type* error. Auto-fix only addresses lint and format. Type errors require a real code change.
+**Important:** never run `check:fix` blindly when the failure is a _type_ error. Auto-fix only addresses lint and format. Type errors require a real code change.
 
 ### Genuine failure
 

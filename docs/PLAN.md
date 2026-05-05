@@ -146,13 +146,13 @@ Each phase ends in a deployable, working site. Don't move on until the previous 
 1. Install: `bun add @mdx-js/rollup remark-frontmatter remark-mdx-frontmatter remark-gfm rehype-slug rehype-autolink-headings rehype-pretty-code shiki gray-matter`.
 2. Configure `vite.config.ts` to add `mdx()` _before_ `reactRouter()`:
    ```ts
-   import mdx from '@mdx-js/rollup';
-   import remarkFrontmatter from 'remark-frontmatter';
-   import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
-   import remarkGfm from 'remark-gfm';
-   import rehypeSlug from 'rehype-slug';
-   import rehypeAutolinkHeadings from 'rehype-autolink-headings';
-   import rehypePrettyCode from 'rehype-pretty-code';
+   import mdx from "@mdx-js/rollup";
+   import remarkFrontmatter from "remark-frontmatter";
+   import remarkMdxFrontmatter from "remark-mdx-frontmatter";
+   import remarkGfm from "remark-gfm";
+   import rehypeSlug from "rehype-slug";
+   import rehypeAutolinkHeadings from "rehype-autolink-headings";
+   import rehypePrettyCode from "rehype-pretty-code";
    ```
    Plugin order matters: `mdx` must run before `reactRouter`.
 3. Create `app/lib/content.ts`:
@@ -179,13 +179,7 @@ Each phase ends in a deployable, working site. Don't move on until the previous 
    ```ts
    prerender: async () => {
      const slugs = await collectSlugs(); // reads MDX frontmatter
-     return [
-       '/',
-       '/work',
-       '/contact',
-       '/blog',
-       ...slugs.map((s) => `/blog/${s}`),
-     ];
+     return ["/", "/work", "/contact", "/blog", ...slugs.map((s) => `/blog/${s}`)];
    };
    ```
 8. Author one real post `app/content/posts/hello-world.mdx` and verify the build outputs a static HTML file at `build/client/blog/hello-world/index.html`.

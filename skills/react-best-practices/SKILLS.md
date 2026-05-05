@@ -3,7 +3,7 @@ name: react-performance-best-practices
 description: React performance optimization guidelines for writing, reviewing, or refactoring React code. Use when working on React components, hooks, client-side data fetching, bundle size, rendering behavior, or JavaScript performance. Framework-neutral; do not assume any full-stack framework, router, server rendering model, or deployment-provider API.
 license: MIT
 metadata:
-  version: '1.0.0'
+  version: "1.0.0"
 ---
 
 # React Performance Best Practices
