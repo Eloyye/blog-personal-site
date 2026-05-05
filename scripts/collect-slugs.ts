@@ -4,12 +4,15 @@ import { join } from "node:path";
 import matter from "gray-matter";
 
 type Frontmatter = {
+  topic?: unknown;
   slug?: unknown;
   draft?: unknown;
   date?: unknown;
 };
 
 const postsDir = join(process.cwd(), "app", "content", "posts");
+const topicSlugs = ["software", "sports", "rant"] as const;
+type TopicSlug = (typeof topicSlugs)[number];
 
 const slugify = (value: string) =>
   value
@@ -32,9 +35,17 @@ const isPublished = (frontmatter: Frontmatter) => {
   return true;
 };
 
-export const collectSlugs = async () => {
+const isTopicSlug = (value: unknown): value is TopicSlug =>
+  typeof value === "string" && topicSlugs.includes(value as TopicSlug);
+
+export type CollectedPost = {
+  topic: TopicSlug;
+  slug: string;
+};
+
+export const collectPosts = async () => {
   const entries = await readdir(postsDir, { withFileTypes: true });
-  const slugs: string[] = [];
+  const posts: CollectedPost[] = [];
 
   for (const entry of entries) {
     if (!entry.isFile() || !entry.name.endsWith(".mdx")) {
@@ -46,6 +57,19 @@ export const collectSlugs = async () => {
     const { data } = matter(source);
     const frontmatter = data as Frontmatter;
 
+    if (typeof frontmatter.topic !== "string") {
+      throw new Error(`${filePath} must define a string topic`);
+    }
+
+    const normalizedTopic = slugify(frontmatter.topic);
+    if (frontmatter.topic !== normalizedTopic) {
+      throw new Error(`${filePath} topic must be normalized as "${normalizedTopic}"`);
+    }
+
+    if (!isTopicSlug(frontmatter.topic)) {
+      throw new Error(`${filePath} topic must be one of: ${topicSlugs.join(", ")}`);
+    }
+
     if (typeof frontmatter.slug !== "string") {
       throw new Error(`${filePath} must define a string slug`);
     }
@@ -56,14 +80,23 @@ export const collectSlugs = async () => {
     }
 
     if (isPublished(frontmatter)) {
-      slugs.push(frontmatter.slug);
+      posts.push({
+        slug: frontmatter.slug,
+        topic: frontmatter.topic,
+      });
     }
   }
 
-  const duplicates = slugs.filter((slug, index) => slugs.indexOf(slug) !== index);
-  if (duplicates.length > 0) {
-    throw new Error(`Duplicate post slug "${duplicates[0]}"`);
+  const duplicatePost = posts.find(
+    (post, index) =>
+      posts.findIndex(
+        (candidate) => candidate.topic === post.topic && candidate.slug === post.slug,
+      ) !== index,
+  );
+
+  if (duplicatePost) {
+    throw new Error(`Duplicate post slug "${duplicatePost.topic}/${duplicatePost.slug}"`);
   }
 
-  return slugs.toSorted();
+  return posts.toSorted((a, b) => `${a.topic}/${a.slug}`.localeCompare(`${b.topic}/${b.slug}`));
 };

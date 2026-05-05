@@ -196,6 +196,96 @@ Each phase ends in a deployable, working site. Don't move on until the previous 
 - **External links:** add a remark/rehype plugin or MDX `<a>` override to set `target="_blank" rel="noopener noreferrer"` for non-relative hrefs.
 - **Reading time:** compute in the loader from the raw MDX source; cache via the module graph.
 
+### Phase 2.1 — Blog topics + nested article URLs
+
+**Goal:** every blog post belongs to one canonical topic, and article URLs become `/blog/$topic/$article` (for example `/blog/software/hello-world`, `/blog/sports/nba-notes`, `/blog/rant/static-site-friction`).
+
+1. Define a fixed topic registry and type. Topics are not arbitrary strings:
+
+   ```ts
+   const topics = {
+     software: { label: "Software", description: "Engineering notes and systems work." },
+     sports: { label: "Sports", description: "Sports writing and observations." },
+     rant: { label: "Rant", description: "Looser notes and opinionated posts." },
+   } as const;
+
+   type TopicSlug = keyof typeof topics;
+   ```
+
+2. Extend post frontmatter with a required canonical `topic` from that fixed subset:
+   ```ts
+   type PostFrontmatter = {
+     title: string;
+     topic: TopicSlug; // one of: "software", "sports", "rant"
+     slug: string; // canonical article slug within the topic
+     date: string;
+     description: string;
+     tags?: string[];
+     draft?: boolean;
+     ogImage?: string;
+   };
+   ```
+3. Treat `topic` and `slug` as the URL source of truth:
+   - Article route: `/blog/:topic/:article`
+   - Topic index route: `/blog/:topic`
+   - Blog index route: `/blog`, grouped by topic or with topic filters
+   - Full canonical path helper: `getPostPath(post) => /blog/${post.topic}/${post.slug}`
+4. Rename the dynamic article route from `app/routes/blog.$slug.tsx` to a nested topic/article route such as `app/routes/blog.$topic.$article.tsx` (or the equivalent explicit route config entry).
+5. Add a topic index route such as `app/routes/blog.$topic.tsx`:
+   - Loader resolves all published posts for `params.topic`
+   - Throw 404 if the topic has no published posts outside dev
+   - Render posts with the same shadcn primitives used by `/blog`
+6. Update `app/lib/content.ts`:
+   - Export `topics`, `TopicSlug`, `getTopic(topic)`, and `isTopicSlug(value)` from one place.
+   - Validate `topic` with the same slug normalization policy as article slugs.
+   - Reject any post whose `topic` is not a key in the fixed `topics` registry.
+   - Detect duplicate `(topic, slug)` pairs and fail the build loudly.
+   - Allow the same article slug in different topics only if the pair is unique.
+7. Update the prerender collector:
+
+   ```ts
+   prerender: async () => {
+     const posts = await collectPosts();
+     const topics = [...new Set(posts.map((post) => post.topic))];
+
+     return [
+       "/",
+       "/work",
+       "/contact",
+       "/blog",
+       ...topics.map((topic) => `/blog/${topic}`),
+       ...posts.map((post) => `/blog/${post.topic}/${post.slug}`),
+     ];
+   };
+   ```
+
+8. Migrate existing posts:
+   - Move `hello-world` from `/blog/hello-world` to `/blog/software/hello-world` unless another topic is more accurate.
+   - Add a redirect from the old URL to the new canonical URL:
+     ```
+     /blog/hello-world /blog/software/hello-world 301
+     ```
+   - For future migrations, keep one redirect per moved public article.
+9. Update all blog links:
+   - Blog list cards link to `/blog/${topic}/${slug}`
+   - Topic badges link to `/blog/${topic}`
+   - Metadata, Open Graph URLs, RSS item links, sitemap URLs, and canonical links use the nested path.
+10. Update RSS/sitemap rules when those phases are implemented:
+
+- Global RSS remains `/rss.xml`
+- Optional topic feeds can be `/blog/software/rss.xml`, `/blog/sports/rss.xml`, etc.
+- Sitemap includes `/blog`, topic indexes, and article URLs.
+
+**Edge cases:**
+
+- **Topic slug normalization:** use lower-case ASCII slugs, strip diacritics, and reject invalid frontmatter rather than silently changing public URLs.
+- **Topic renames:** a topic rename changes every URL under it. Require redirects for every published post in the old topic path.
+- **Drafts and future posts:** topic indexes and prerender lists must exclude draft/future posts outside dev. If all posts in a topic are hidden, the topic page should not prerender in production.
+- **Duplicate article slugs:** duplicates are allowed across different topics only if canonical URLs remain unique; duplicates inside one topic fail the build.
+- **Unknown topics:** fail the build. Do not generate implicit topics from frontmatter.
+- **Backward compatibility:** keep `/blog/:slug` only as redirects, not as a second render path, to avoid duplicate content and canonical URL ambiguity.
+- **Topic taxonomy drift:** prefer a small controlled set at first (`software`, `sports`, `rant`) and split topics later only when there are enough posts to justify it.
+
 ### Phase 3 — About, Work, layout, design system
 
 **Goal:** real content pages, consistent header/footer, dark mode.

@@ -1,5 +1,6 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 import React from "react";
+import "./app.css";
 
 const Layout = function Layout({ children }: { children: React.ReactNode }) {
   return (
