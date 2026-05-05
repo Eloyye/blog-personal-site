@@ -11,8 +11,17 @@ type MdxComponents = Record<
 >;
 type RawModule = string | { default?: string };
 
+export const topics = {
+  software: { label: "Software", description: "Engineering notes and systems work." },
+  sports: { label: "Sports", description: "Sports writing and observations." },
+  rant: { label: "Rant", description: "Looser notes and opinionated posts." },
+} as const;
+
+export type TopicSlug = keyof typeof topics;
+
 export type PostFrontmatter = {
   title: string;
+  topic: TopicSlug;
   slug: string;
   date: string;
   description: string;
@@ -45,25 +54,41 @@ const slugify = (value: string) =>
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
 
+export const isTopicSlug = (value: unknown): value is TopicSlug =>
+  typeof value === "string" && value in topics;
+
+export const getTopic = (topic: TopicSlug) => topics[topic];
+
 const assertFrontmatter = (value: unknown, path: string): PostFrontmatter => {
   if (!isRecord(value)) {
     throw new Error(`Missing frontmatter in ${path}`);
   }
 
   const title = value.title;
+  const topic = value.topic;
   const slug = value.slug;
   const date = value.date;
   const description = value.description;
 
   if (
     typeof title !== "string" ||
+    typeof topic !== "string" ||
     typeof slug !== "string" ||
     typeof date !== "string" ||
     typeof description !== "string"
   ) {
     throw new Error(
-      `${path} frontmatter must include string title, slug, date, and description fields`,
+      `${path} frontmatter must include string title, topic, slug, date, and description fields`,
     );
+  }
+
+  const normalizedTopic = slugify(topic);
+  if (topic !== normalizedTopic) {
+    throw new Error(`${path} topic must be normalized as "${normalizedTopic}"`);
+  }
+
+  if (!isTopicSlug(topic)) {
+    throw new Error(`${path} topic must be one of: ${Object.keys(topics).join(", ")}`);
   }
 
   const normalizedSlug = slugify(slug);
@@ -94,6 +119,7 @@ const assertFrontmatter = (value: unknown, path: string): PostFrontmatter => {
 
   return {
     title,
+    topic,
     slug,
     date,
     description,
@@ -143,13 +169,32 @@ const allPosts = Object.entries(modules)
   .toSorted((a, b) => Date.parse(b.date) - Date.parse(a.date));
 
 const duplicateSlug = allPosts.find(
-  (post, index) => allPosts.findIndex((candidate) => candidate.slug === post.slug) !== index,
+  (post, index) =>
+    allPosts.findIndex(
+      (candidate) => candidate.topic === post.topic && candidate.slug === post.slug,
+    ) !== index,
 );
 
 if (duplicateSlug) {
-  throw new Error(`Duplicate post slug "${duplicateSlug.slug}"`);
+  throw new Error(`Duplicate post slug "${duplicateSlug.topic}/${duplicateSlug.slug}"`);
 }
 
 export const getAllPosts = () => allPosts.filter(isPublished);
 
-export const getPostBySlug = (slug: string) => getAllPosts().find((post) => post.slug === slug);
+export const getPostsByTopic = (topic: TopicSlug) =>
+  getAllPosts().filter((post) => post.topic === topic);
+
+export const getTopicsWithPosts = () =>
+  (Object.keys(topics) as TopicSlug[])
+    .map((slug) => ({
+      ...topics[slug],
+      postCount: getPostsByTopic(slug).length,
+      slug,
+    }))
+    .filter((topic) => topic.postCount > 0);
+
+export const getPostByTopicAndSlug = (topic: TopicSlug, slug: string) =>
+  getAllPosts().find((post) => post.topic === topic && post.slug === slug);
+
+export const getPostPath = (post: Pick<Post, "slug" | "topic">) =>
+  `/blog/${post.topic}/${post.slug}`;

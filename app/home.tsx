@@ -20,7 +20,10 @@ const Home = () => (
           <Link className={cn(buttonVariants({ variant: "default" }))} to="/blog">
             Blog
           </Link>
-          <Link className={cn(buttonVariants({ variant: "outline" }))} to="/blog/hello-world">
+          <Link
+            className={cn(buttonVariants({ variant: "outline" }))}
+            to="/blog/software/hello-world"
+          >
             First post
           </Link>
         </nav>

@@ -4,19 +4,20 @@ import { mdxComponents } from "~/components/mdx/mdx-components";
 import { Badge } from "~/components/ui/badge";
 import { buttonVariants } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
-import { getPostBySlug } from "~/lib/content";
+import { getPostByTopicAndSlug, getTopic, isTopicSlug } from "~/lib/content";
 import cn from "~/lib/utils";
 
-import type { Route } from "./+types/blog.$slug";
+import type { Route } from "./+types/blog.$topic.$article";
 
 export const loader = ({ params }: Route.LoaderArgs) => {
-  const slug = params.slug;
+  const topic = params.topic;
+  const article = params.article;
 
-  if (!slug) {
+  if (!isTopicSlug(topic) || !article) {
     throw new Response("Not found", { status: 404 });
   }
 
-  const post = getPostBySlug(slug);
+  const post = getPostByTopicAndSlug(topic, article);
 
   if (!post) {
     throw new Response("Not found", { status: 404 });
@@ -29,6 +30,8 @@ export const loader = ({ params }: Route.LoaderArgs) => {
     slug: post.slug,
     tags: post.tags ?? [],
     title: post.title,
+    topic: post.topic,
+    topicMeta: getTopic(post.topic),
   };
 };
 
@@ -48,7 +51,7 @@ export const meta = ({ data }: Route.MetaArgs) => {
 
 const BlogPost = () => {
   const data = useLoaderData<typeof loader>();
-  const post = getPostBySlug(data.slug);
+  const post = getPostByTopicAndSlug(data.topic, data.slug);
 
   if (!post) {
     throw new Response("Not found", { status: 404 });
@@ -58,8 +61,11 @@ const BlogPost = () => {
 
   return (
     <main className="mx-auto min-h-svh w-full max-w-3xl px-6 py-16">
-      <Link className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "mb-10")} to="/blog">
-        Blog
+      <Link
+        className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "mb-10")}
+        to={`/blog/${data.topic}`}
+      >
+        {data.topicMeta.label}
       </Link>
       <article>
         <header className="mb-8">
@@ -74,6 +80,9 @@ const BlogPost = () => {
           <p className="mt-4 text-lg text-muted-foreground">{data.description}</p>
           <div className="mt-5 flex flex-wrap gap-2">
             <Badge variant="secondary">{data.readingTime}</Badge>
+            <Badge variant="outline">
+              <Link to={`/blog/${data.topic}`}>{data.topicMeta.label}</Link>
+            </Badge>
             {data.tags.map((tag) => (
               <Badge key={tag} variant="outline">
                 {tag}
