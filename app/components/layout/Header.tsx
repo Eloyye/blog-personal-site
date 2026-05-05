@@ -87,7 +87,7 @@ const Header = () => (
           <a
             aria-label="GitHub"
             className={cn(buttonVariants({ size: "icon-sm", variant: "ghost" }))}
-            href="https://github.com/eloyyeluo"
+            href="https://github.com/eloyye"
             rel="noopener noreferrer"
             target="_blank"
             title="GitHub"
@@ -97,7 +97,7 @@ const Header = () => (
           <a
             aria-label="Email"
             className={cn(buttonVariants({ size: "icon-sm", variant: "ghost" }))}
-            href="mailto:hello@eloyye.com"
+            href="mailto:yeluo.eloy@gmail.com"
             title="Email"
           >
             <HugeiconsIcon icon={Mail01Icon} size={18} />
