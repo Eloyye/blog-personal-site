@@ -1,7 +1,11 @@
 import { Link, useLoaderData } from "react-router";
 
 import { mdxComponents } from "~/components/mdx/mdx-components";
+import { Badge } from "~/components/ui/badge";
+import { buttonVariants } from "~/components/ui/button";
+import { Separator } from "~/components/ui/separator";
 import { getPostBySlug } from "~/lib/content";
+import cn from "~/lib/utils";
 
 import type { Route } from "./+types/blog.$slug";
 
@@ -54,11 +58,11 @@ const BlogPost = () => {
 
   return (
     <main className="mx-auto min-h-svh w-full max-w-3xl px-6 py-16">
-      <Link className="mb-10 block text-sm text-muted-foreground hover:text-foreground" to="/blog">
+      <Link className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "mb-10")} to="/blog">
         Blog
       </Link>
       <article>
-        <header className="mb-10 border-b border-border pb-8">
+        <header className="mb-8">
           <time className="text-sm text-muted-foreground" dateTime={data.date}>
             {new Intl.DateTimeFormat("en", {
               month: "long",
@@ -68,13 +72,16 @@ const BlogPost = () => {
           </time>
           <h1 className="mt-3 text-4xl font-semibold tracking-normal">{data.title}</h1>
           <p className="mt-4 text-lg text-muted-foreground">{data.description}</p>
-          <div className="mt-5 flex flex-wrap gap-2 text-sm text-muted-foreground">
-            <span>{data.readingTime}</span>
+          <div className="mt-5 flex flex-wrap gap-2">
+            <Badge variant="secondary">{data.readingTime}</Badge>
             {data.tags.map((tag) => (
-              <span key={tag}>/{tag}</span>
+              <Badge key={tag} variant="outline">
+                {tag}
+              </Badge>
             ))}
           </div>
         </header>
+        <Separator className="mb-10" />
         <div className="mdx-content">
           <Content components={mdxComponents} />
         </div>
