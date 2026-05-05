@@ -1,140 +1,23 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": [
-    "typescript",
-    "unicorn",
-    "oxc",
-    "import",
-    "react",
-    "react-perf",
-    "jsx-a11y",
-    "promise"
-  ],
+  "plugins": ["typescript", "react", "react-perf", "unicorn", "oxc", "import"],
   "categories": {
-    "correctness": "error",
-    "suspicious": "error",
-    "perf": "warn",
-    "style": "warn",
-    "pedantic": "off",
-    "restriction": "off",
-    "nursery": "off"
-  },
-  "env": {
-    "browser": true,
-    "node": true,
-    "builtin": true
-  },
-  "settings": {
-    "react": { "version": "19.2.4" }
+    "correctness": "error"
   },
   "rules": {
-    "eqeqeq": ["error", "always", { "null": "ignore" }],
-    "no-var": "error",
-    "prefer-const": "error",
-    "prefer-template": "error",
-    "object-shorthand": "error",
-    "no-console": ["warn", { "allow": ["warn", "error"] }],
-    "no-alert": "error",
-    "no-param-reassign": ["error", { "props": true }],
-    "no-nested-ternary": "error",
-    "no-unneeded-ternary": "error",
-    "no-else-return": "error",
-    "no-lonely-if": "error",
-    "no-useless-concat": "error",
-    "no-useless-rename": "error",
-    "no-useless-return": "error",
-    "default-case-last": "error",
-    "radix": "error",
-    "yoda": "error",
-    "symbol-description": "error",
-
-    "typescript/consistent-type-imports": [
-      "error",
-      { "prefer": "type-imports", "fixStyle": "inline-type-imports" }
-    ],
-    "typescript/consistent-type-definitions": ["error", "type"],
-    "typescript/no-explicit-any": "error",
-    "typescript/no-non-null-assertion": "warn",
-    "typescript/array-type": ["error", { "default": "array-simple" }],
-    "typescript/prefer-as-const": "error",
-    "typescript/no-unused-vars": [
-      "error",
-      {
-        "argsIgnorePattern": "^_",
-        "varsIgnorePattern": "^_",
-        "caughtErrorsIgnorePattern": "^_"
-      }
-    ],
-
-    "unicorn/prefer-node-protocol": "error",
-    "unicorn/prefer-array-flat": "error",
-    "unicorn/prefer-array-flat-map": "error",
-    "unicorn/prefer-includes": "error",
-    "unicorn/prefer-string-starts-ends-with": "error",
-    "unicorn/prefer-string-slice": "error",
-    "unicorn/prefer-spread": "error",
-    "unicorn/prefer-ternary": "error",
-    "unicorn/no-array-for-each": "warn",
-    "unicorn/throw-new-error": "error",
-    "unicorn/error-message": "error",
-    "unicorn/prefer-number-properties": "error",
-    "unicorn/no-instanceof-builtins": "error",
-    "unicorn/filename-case": "off",
-    "unicorn/no-null": "off",
-
-    "eslint/no-duplicate-imports": ["error", { "allowSeparateTypeImports": true }],
-    "import/no-self-import": "error",
-    "import/no-cycle": "error",
-    "import/no-default-export": "off",
-    "import/first": "error",
-    "import/no-named-export": "off",
-
-    "react/self-closing-comp": "error",
+    "react-hooks/exhaustive-deps": "error",
+    "react-hooks/rules-of-hooks": "error",
     "react/jsx-key": "error",
-    "react/jsx-no-useless-fragment": "error",
     "react/no-array-index-key": "warn",
-    "react/no-danger": "warn",
-    "react/button-has-type": "error",
-
-    "jsx-a11y/alt-text": "error",
-    "jsx-a11y/anchor-has-content": "error",
-    "jsx-a11y/anchor-is-valid": "error",
-    "jsx-a11y/aria-props": "error",
-    "jsx-a11y/click-events-have-key-events": "warn",
-    "jsx-a11y/no-static-element-interactions": "warn",
-
-    "promise/no-return-wrap": "error",
-    "promise/param-names": "error",
-    "promise/no-new-statics": "error",
-    "promise/valid-params": "error"
+    "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "unicorn/no-array-sort": ["error", { "allowExpressionStatement": false }],
+    "unicorn/no-array-reverse": ["error", { "allowExpressionStatement": false }]
   },
+  "env": { "builtin": true },
   "overrides": [
     {
-      "files": ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"],
-      "rules": {
-        "typescript/no-explicit-any": "off",
-        "typescript/no-non-null-assertion": "off",
-        "no-console": "off"
-      }
-    },
-    {
-      "files": ["app/routes/**/*.tsx", "app/root.tsx"],
-      "rules": {
-        "import/no-default-export": "off"
-      }
-    },
-    {
-      "files": ["**/*.mdx"],
-      "rules": {
-        "react/jsx-no-useless-fragment": "off"
-      }
-    },
-    {
-      "files": ["scripts/**/*.ts", "*.config.ts", "vite.config.ts", "react-router.config.ts"],
-      "rules": {
-        "no-console": "off",
-        "import/no-default-export": "off"
-      }
+      "files": ["**/*.config.{ts,js}", "**/vite.config.*", "**/react-router.config.*"],
+      "rules": { "no-console": "off" }
     }
   ]
 }
