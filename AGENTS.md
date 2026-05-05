@@ -1,0 +1,2 @@
+- Deploys to Cloudflare Pages at `eloyye.com`.
+- Use `bun` for all commands; never `node` or `deno`.
