@@ -2,24 +2,8 @@ import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 import React from "react";
 import { Footer } from "~/components/layout/Footer";
 import { Header } from "~/components/layout/Header";
+import { themeBootstrapScript } from "~/lib/theme";
 import "./app.css";
-
-const themeScript = `
-(() => {
-  try {
-    const stored = localStorage.getItem("theme");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const theme = stored === "light" || stored === "dark" ? stored : prefersDark ? "dark" : "light";
-    document.documentElement.classList.toggle("dark", theme === "dark");
-    document.documentElement.style.colorScheme = theme;
-  } catch {
-    document.documentElement.classList.toggle(
-      "dark",
-      window.matchMedia("(prefers-color-scheme: dark)").matches,
-    );
-  }
-})();
-`;
 
 const Layout = function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -27,9 +11,10 @@ const Layout = function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
         <Meta />
         <Links />
+        <title>Eloy Ye</title>
       </head>
       <body className="min-h-svh bg-background text-foreground antialiased">
         {children}
