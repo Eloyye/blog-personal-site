@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 
+import { Container } from "~/components/layout/Container";
 import { Badge } from "~/components/ui/badge";
-import { buttonVariants } from "~/components/ui/button";
 import {
   Card,
   CardAction,
@@ -11,7 +11,6 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { getAllPosts, getPostPath, getTopic, getTopicsWithPosts } from "~/lib/content";
-import cn from "~/lib/utils";
 
 export const meta = () => [
   { title: "Blog | Eloy Ye" },
@@ -26,12 +25,12 @@ const BlogIndex = () => {
   const activeTopics = getTopicsWithPosts();
 
   return (
-    <main className="mx-auto flex min-h-svh w-full max-w-3xl flex-col px-6 py-16">
-      <Link className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "mb-10 w-fit")} to="/">
-        Eloy Ye
-      </Link>
-      <header className="mb-12">
-        <h1 className="text-4xl font-semibold tracking-normal">Blog</h1>
+    <Container className="py-14 sm:py-20">
+      <header className="mb-12 max-w-3xl">
+        <p className="text-sm font-medium uppercase tracking-[0.18em] text-teal-700 dark:text-teal-300">
+          Blog
+        </p>
+        <h1 className="mt-4 text-4xl font-semibold tracking-normal sm:text-5xl">Notes</h1>
         <p className="mt-3 max-w-2xl text-muted-foreground">
           Notes on software, systems, and the work behind this site.
         </p>
@@ -79,7 +78,7 @@ const BlogIndex = () => {
           </Card>
         ))}
       </div>
-    </main>
+    </Container>
   );
 };
 

@@ -35,12 +35,27 @@ export type Post = PostFrontmatter & {
   readingTime: string;
 };
 
+export type ProjectFrontmatter = {
+  title: string;
+  summary: string;
+  url: string;
+  repo: string;
+  tech: string[];
+  year: number;
+  featured: boolean;
+};
+
+export type Project = ProjectFrontmatter & {
+  Component: ComponentType<{ components?: MdxComponents }>;
+};
+
 const modules = import.meta.glob<MdxModule>("../content/posts/*.mdx", { eager: true });
 const rawModules = import.meta.glob<RawModule>("../content/posts/*.mdx", {
   eager: true,
   query: "?raw",
   import: "default",
 });
+const projectModules = import.meta.glob<MdxModule>("../content/projects/*.mdx", { eager: true });
 
 const slugify = (value: string) =>
   value
@@ -129,6 +144,45 @@ const assertFrontmatter = (value: unknown, path: string): PostFrontmatter => {
   };
 };
 
+const assertProjectFrontmatter = (value: unknown, path: string): ProjectFrontmatter => {
+  if (!isRecord(value)) {
+    throw new Error(`Missing frontmatter in ${path}`);
+  }
+
+  const title = value.title;
+  const summary = value.summary;
+  const url = value.url;
+  const repo = value.repo;
+  const tech = value.tech;
+  const year = value.year;
+  const featured = value.featured;
+
+  if (
+    typeof title !== "string" ||
+    typeof summary !== "string" ||
+    typeof url !== "string" ||
+    typeof repo !== "string" ||
+    !Array.isArray(tech) ||
+    !tech.every((item) => typeof item === "string") ||
+    typeof year !== "number" ||
+    typeof featured !== "boolean"
+  ) {
+    throw new Error(
+      `${path} project frontmatter must include title, summary, url, repo, tech[], year, and featured`,
+    );
+  }
+
+  return {
+    featured,
+    repo,
+    summary,
+    tech,
+    title,
+    url,
+    year,
+  };
+};
+
 const computeReadingTime = (source: string) => {
   const text = source
     .replace(/^---[\s\S]*?---/, "")
@@ -179,7 +233,33 @@ if (duplicateSlug) {
   throw new Error(`Duplicate post slug "${duplicateSlug.topic}/${duplicateSlug.slug}"`);
 }
 
+const allProjects = Object.entries(projectModules)
+  .map(([path, module]) => ({
+    ...assertProjectFrontmatter(module.frontmatter, path),
+    Component: module.default,
+  }))
+  .toSorted((a, b) => {
+    if (a.featured !== b.featured) {
+      return a.featured ? -1 : 1;
+    }
+
+    return b.year - a.year || a.title.localeCompare(b.title);
+  });
+
+const duplicateProjectTitle = allProjects.find(
+  (project, index) =>
+    allProjects.findIndex((candidate) => candidate.title === project.title) !== index,
+);
+
+if (duplicateProjectTitle) {
+  throw new Error(`Duplicate project title "${duplicateProjectTitle.title}"`);
+}
+
 export const getAllPosts = () => allPosts.filter(isPublished);
+
+export const getRecentPosts = (limit = 3) => getAllPosts().slice(0, limit);
+
+export const getAllProjects = () => allProjects;
 
 export const getPostsByTopic = (topic: TopicSlug) =>
   getAllPosts().filter((post) => post.topic === topic);

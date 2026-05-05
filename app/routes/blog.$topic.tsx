@@ -1,7 +1,7 @@
 import { Link, useLoaderData } from "react-router";
 
+import { Container } from "~/components/layout/Container";
 import { Badge } from "~/components/ui/badge";
-import { buttonVariants } from "~/components/ui/button";
 import {
   Card,
   CardAction,
@@ -11,7 +11,6 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { getPostPath, getPostsByTopic, getTopic, isTopicSlug } from "~/lib/content";
-import cn from "~/lib/utils";
 
 import type { Route } from "./+types/blog.$topic";
 
@@ -58,14 +57,8 @@ const BlogTopic = () => {
   const data = useLoaderData<typeof loader>();
 
   return (
-    <main className="mx-auto flex min-h-svh w-full max-w-3xl flex-col px-6 py-16">
-      <Link
-        className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "mb-10 w-fit")}
-        to="/blog"
-      >
-        Blog
-      </Link>
-      <header className="mb-12">
+    <Container className="py-14 sm:py-20">
+      <header className="mb-12 max-w-3xl">
         <Badge className="mb-4" variant="secondary">
           {data.topic}
         </Badge>
@@ -105,7 +98,7 @@ const BlogTopic = () => {
           </Card>
         ))}
       </div>
-    </main>
+    </Container>
   );
 };
 

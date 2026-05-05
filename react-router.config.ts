@@ -9,6 +9,7 @@ export default {
 
     return [
       "/",
+      "/work",
       "/blog",
       ...topics.map((topic) => `/blog/${topic}`),
       ...posts.map((post) => `/blog/${post.topic}/${post.slug}`),
