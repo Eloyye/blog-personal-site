@@ -136,7 +136,7 @@ Each phase ends in a deployable, working site. Don't move on until the previous 
 
 - Apex vs `www` — pick a canonical and 301 the other.
 - HTTP → HTTPS — Pages does this automatically; verify in DevTools.
-- Trailing slash policy — RR7 prerenders without trailing slashes; configure `_redirects` if needed for consistency.
+- Trailing slash policy — RR7 prerenders without trailing slashes (canonical form). Add `public/_redirects` with `/*/ /:splat 301` to strip trailing slashes from incoming requests. The redirect is enforced by Cloudflare Pages (not RR7, which has no runtime in SSG mode); the file is committed to the repo and deployed with the site — there is no API/Wrangler command to manage it out-of-band.
 - Set HSTS via `_headers` once you're confident in the setup (start short, raise to 1 year later).
 
 ### Phase 2 — MDX pipeline + first blog post
