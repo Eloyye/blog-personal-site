@@ -16,9 +16,9 @@ const Footer = () => (
           <Link className="hover:text-foreground" to="/work">
             Work
           </Link>
-          <a className="hover:text-foreground" href="mailto:hello@eloyye.com">
+          <Link className="hover:text-foreground" to="/contact">
             Contact
-          </a>
+          </Link>
         </nav>
       </div>
     </Container>

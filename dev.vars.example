@@ -1,0 +1,16 @@
+# Copy to .dev.vars and fill in real values.
+# .dev.vars is gitignored — never commit secrets.
+
+# Turnstile — https://dash.cloudflare.com → Turnstile → Add site
+TURNSTILE_SECRET=your-turnstile-secret-key
+
+# Where contact form emails are delivered
+CONTACT_TO_EMAIL=hello@eloyye.com
+
+# Sender address (must match SPF/DKIM records on eloyye.com)
+MAIL_FROM_ADDRESS=noreply@eloyye.com
+
+# DKIM (optional but strongly recommended for deliverability)
+# DKIM_DOMAIN=eloyye.com
+# DKIM_SELECTOR=s1
+# DKIM_PRIVATE_KEY=<base64-encoded private key>

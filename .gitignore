@@ -210,3 +210,5 @@ Temporary Items
 .wrangler/
 .dev.vars
 .dev.vars.*
+
+*.pem
