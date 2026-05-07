@@ -6,6 +6,7 @@ const navItems = [
   { end: true, label: "About", to: "/" },
   { label: "Work", to: "/work" },
   { label: "Blog", to: "/blog" },
+  { label: "Contact", to: "/contact" },
 ];
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
