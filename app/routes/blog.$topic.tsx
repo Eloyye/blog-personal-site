@@ -1,17 +1,9 @@
-import { Link, useLoaderData } from "react-router";
+import { useLoaderData } from "react-router";
 
-import { Badge } from "~/components/ui/badge";
-import { buttonVariants } from "~/components/ui/button";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
-import { getPostPath, getPostsByTopic, getTopic, isTopicSlug } from "~/lib/content";
-import cn from "~/lib/utils";
+import { BlogPageHeader } from "~/components/blog/BlogPageHeader";
+import { PostList } from "~/components/blog/PostList";
+import { Container } from "~/components/layout/Container";
+import { getPostsByTopic, getTopic, isTopicSlug, toListedPost } from "~/lib/content";
 
 import type { Route } from "./+types/blog.$topic";
 
@@ -29,15 +21,7 @@ export const loader = ({ params }: Route.LoaderArgs) => {
   }
 
   return {
-    posts: posts.map((post) => ({
-      date: post.date,
-      description: post.description,
-      path: getPostPath(post),
-      readingTime: post.readingTime,
-      slug: post.slug,
-      tags: post.tags ?? [],
-      title: post.title,
-    })),
+    posts: posts.map((post) => toListedPost(post)),
     topic,
     topicMeta: getTopic(topic),
   };
@@ -58,54 +42,10 @@ const BlogTopic = () => {
   const data = useLoaderData<typeof loader>();
 
   return (
-    <main className="mx-auto flex min-h-svh w-full max-w-3xl flex-col px-6 py-16">
-      <Link
-        className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "mb-10 w-fit")}
-        to="/blog"
-      >
-        Blog
-      </Link>
-      <header className="mb-12">
-        <Badge className="mb-4" variant="secondary">
-          {data.topic}
-        </Badge>
-        <h1 className="text-4xl font-semibold tracking-normal">{data.topicMeta.label}</h1>
-        <p className="mt-3 max-w-2xl text-muted-foreground">{data.topicMeta.description}</p>
-      </header>
-      <div className="grid gap-8">
-        {data.posts.map((post) => (
-          <Card key={post.slug}>
-            <article>
-              <CardHeader>
-                <CardTitle className="text-2xl font-semibold">
-                  <Link className="hover:text-muted-foreground" to={post.path}>
-                    {post.title}
-                  </Link>
-                </CardTitle>
-                <CardDescription>{post.description}</CardDescription>
-                <CardAction>
-                  <time className="text-sm text-muted-foreground" dateTime={post.date}>
-                    {new Intl.DateTimeFormat("en", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    }).format(new Date(post.date))}
-                  </time>
-                </CardAction>
-              </CardHeader>
-              <CardContent className="flex flex-wrap gap-2">
-                <Badge variant="secondary">{post.readingTime}</Badge>
-                {post.tags.map((tag) => (
-                  <Badge key={tag} variant="outline">
-                    {tag}
-                  </Badge>
-                ))}
-              </CardContent>
-            </article>
-          </Card>
-        ))}
-      </div>
-    </main>
+    <Container className="py-14 sm:py-20">
+      <BlogPageHeader description={data.topicMeta.description} title={data.topicMeta.label} />
+      <PostList posts={data.posts} />
+    </Container>
   );
 };
 

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/figtree";
@@ -13,7 +14,7 @@
 
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
+  @apply bg-background;
 
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;
@@ -146,30 +147,15 @@ body {
 
 @layer components {
   .mdx-content {
-    @apply space-y-6 text-base leading-7 text-foreground;
-  }
-
-  .mdx-content h2 {
-    @apply mt-10 text-2xl font-semibold tracking-normal;
-  }
-
-  .mdx-content p {
-    @apply text-foreground;
-  }
-
-  .mdx-content ul {
-    @apply list-disc space-y-2 pl-6;
-  }
-
-  .mdx-content a {
-    @apply underline underline-offset-4;
-  }
-
-  .mdx-content code:not(pre code) {
-    @apply rounded bg-muted px-1.5 py-0.5 text-sm;
-  }
-
-  .mdx-content pre code {
-    @apply bg-transparent p-0;
+    --tw-prose-links: var(--foreground);
+    --tw-prose-bold: var(--foreground);
+    --tw-prose-headings: var(--foreground);
+    --tw-prose-code: var(--foreground);
+    --tw-prose-quote-borders: oklch(0.55 0.13 180);
+    --tw-prose-invert-links: var(--foreground);
+    --tw-prose-invert-bold: var(--foreground);
+    --tw-prose-invert-headings: var(--foreground);
+    --tw-prose-invert-code: var(--foreground);
+    --tw-prose-invert-quote-borders: oklch(0.72 0.13 180);
   }
 }

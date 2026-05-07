@@ -10,40 +10,45 @@ See [docs/PLAN.md](docs/PLAN.md) for the full implementation plan and phase-by-p
 - **Runtime and package manager:** Bun
 - **Build tool:** Vite
 - **Language:** TypeScript
-- **Styling:** Tailwind CSS v4 with local UI primitives
-- **Content:** MDX blog posts in `app/content/posts`
+- **Styling:** Tailwind CSS v4, Tailwind Typography, and local UI primitives
+- **Content:** MDX blog posts and project entries in `app/content`
 - **Syntax highlighting:** `rehype-pretty-code` with Shiki at build time
 - **Hosting target:** Cloudflare Pages at `eloyye.com`
 
 Current routes:
 
-- `/` — home page
+- `/` — About page with recent writing
+- `/work` — selected projects from MDX frontmatter
 - `/blog` — published blog post index
-- `/blog/:slug` — prerendered MDX blog posts
+- `/blog/:topic` — topic index for canonical blog topics
+- `/blog/:topic/:article` — prerendered MDX blog posts
 
-Planned routes and features include `/work`, `/contact`, project MDX entries, RSS, sitemap generation, Turnstile-protected contact form handling, and Cloudflare Web Analytics.
+Planned routes and features include `/contact`, RSS, sitemap generation, Turnstile-protected contact form handling, and Cloudflare Web Analytics.
 
 ## Project Structure
 
 ```text
 app/
   components/
+    layout/           Shared Header, Footer, and Container
     mdx/              Shared MDX component overrides
     ui/               Local UI primitives
   content/
     posts/            Blog posts as .mdx files
+    projects/         Project entries as .mdx files
   lib/
-    content.ts        Post discovery, frontmatter validation, reading time
+    content.ts        Post/project discovery, validation, reading time
   routes/             React Router route modules
   app.css             Tailwind entry
-  root.tsx            Document shell
+  root.tsx            Document shell and theme bootstrap
   routes.ts           Route config
 docs/
   PLAN.md             Implementation roadmap
 public/
   _redirects          Cloudflare Pages redirects
+  robots.txt          Basic crawler policy
 scripts/
-  collect-slugs.ts    Build-time blog slug collection for prerendering
+  collect-slugs.ts    Build-time blog path collection for prerendering
 ```
 
 ## Setup
@@ -77,11 +82,14 @@ bun run check:fix     # Apply lint and format fixes
 
 ## Content
 
+### Blog Posts
+
 Blog posts live in `app/content/posts/*.mdx`. Each post must define frontmatter with these required fields:
 
 ```yaml
 ---
 title: "Post title"
+topic: "software"
 slug: "post-title"
 date: "2026-01-01"
 description: "Short summary for listings, RSS, and metadata."
@@ -97,7 +105,33 @@ draft: true
 ogImage: "/path-or-imported-image.png"
 ```
 
-Post slugs are the canonical URL source, must already be normalized, and must be unique. Drafts and future-dated posts are excluded from production listings and prerendered output.
+The canonical URL is `/blog/:topic/:slug`. Supported topics are defined in `app/lib/content.ts` and are currently:
+
+- `software`
+- `sports`
+- `rant`
+
+Topic and post slugs are the canonical URL source, must already be normalized, and duplicate `(topic, slug)` pairs fail the build. Drafts and future-dated posts are excluded from production listings and prerendered output.
+
+### Projects
+
+Project entries live in `app/content/projects/*.mdx`. The `/work` page renders project cards from frontmatter:
+
+```yaml
+---
+title: "Project title"
+summary: "Short description for the work page."
+url: "https://example.com"
+repo: "https://github.com/example/project"
+tech:
+  - React Router
+  - MDX
+year: 2026
+featured: true
+---
+```
+
+Projects are sorted with featured entries first, then by year descending.
 
 ## Build and Deployment
 
@@ -107,7 +141,7 @@ Create a static production build:
 bun run build
 ```
 
-React Router prerenders the known routes plus the blog slugs returned by `scripts/collect-slugs.ts`. The Cloudflare Pages build should use:
+React Router prerenders the known static routes plus the blog topic/article paths returned by `scripts/collect-slugs.ts`. The Cloudflare Pages build should use:
 
 - **Build command:** `bun run build`
 - **Output directory:** `build/client`
@@ -127,6 +161,7 @@ Keep changes aligned with [docs/PLAN.md](docs/PLAN.md):
 
 - Use `app/` for React Router code.
 - Keep blog content in `app/content/posts`.
+- Keep project content in `app/content/projects`.
 - Prefer build-time/static behavior over runtime services.
-- Keep MDX frontmatter valid and fail builds loudly for duplicate or malformed slugs.
+- Keep MDX frontmatter valid and fail builds loudly for duplicate or malformed canonical paths.
 - Do not commit secrets. Cloudflare values such as Turnstile secrets and MailChannels DKIM keys belong in Pages environment variables.

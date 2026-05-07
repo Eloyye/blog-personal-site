@@ -1,5 +1,6 @@
 import { Link, useLoaderData } from "react-router";
 
+import { Container } from "~/components/layout/Container";
 import { mdxComponents } from "~/components/mdx/mdx-components";
 import { Badge } from "~/components/ui/badge";
 import { buttonVariants } from "~/components/ui/button";
@@ -60,7 +61,7 @@ const BlogPost = () => {
   const Content = post.Component;
 
   return (
-    <main className="mx-auto min-h-svh w-full max-w-3xl px-6 py-16">
+    <Container className="max-w-3xl py-14 sm:py-20">
       <Link
         className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "mb-10")}
         to={`/blog/${data.topic}`}
@@ -91,11 +92,11 @@ const BlogPost = () => {
           </div>
         </header>
         <Separator className="mb-10" />
-        <div className="mdx-content">
+        <div className="mdx-content prose prose-neutral max-w-none dark:prose-invert">
           <Content components={mdxComponents} />
         </div>
       </article>
-    </main>
+    </Container>
   );
 };
 
