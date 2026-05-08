@@ -38,6 +38,7 @@
   "send_email": [
     {
       "name": "SEND_EMAIL",
+      "allowed_sender_addresses": ["noreply@eloyye.com"],
     },
   ],
 }
