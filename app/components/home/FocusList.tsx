@@ -1,15 +1,16 @@
 const focusItems = [
   {
-    description: "Small, static-first web products with low operational drag.",
+    description: "Advanced computer vision systems for automation and analytics",
     title: "Shipping",
   },
   {
-    description: "Notes on engineering decisions, tooling, and tradeoffs.",
+    description:
+      "Notes on software development and engineering practices, system designs, sports, and rambling",
     title: "Writing",
   },
   {
-    description: "Practical architecture for software that stays easy to maintain.",
-    title: "Systems",
+    description: "AI development workflow's velocity and maintainability",
+    title: "Balance",
   },
 ];
 
