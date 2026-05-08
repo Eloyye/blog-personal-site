@@ -8,4 +8,5 @@
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
   },
+  "vars": { "VITE_TURNSTILE_SITE_KEY": "0x4AAAAAADKo45g4IOKTQDA6" },
 }
