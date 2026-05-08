@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "react-router build",
+    "build": "react-router build && bun scripts/build-404.ts && bun scripts/build-rss.ts && bun scripts/build-sitemap.ts",
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc && tsc -p worker/tsconfig.json",
@@ -15,8 +15,8 @@
     "test:watch": "vitest --passWithNoTests",
     "check": "bun run typecheck && bun run lint && bun run format && bun run test",
     "check:fix": "bun run lint:fix && bun run format:write",
-    "deploy": "react-router build && wrangler deploy",
-    "preview": "react-router build && wrangler dev"
+    "deploy": "bun run build && wrangler deploy",
+    "preview": "bun run build && wrangler dev"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",

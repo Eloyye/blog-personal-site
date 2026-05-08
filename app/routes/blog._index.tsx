@@ -2,14 +2,14 @@ import { BlogPageHeader } from "~/components/blog/BlogPageHeader";
 import { PostList } from "~/components/blog/PostList";
 import { Container } from "~/components/layout/Container";
 import { getAllPosts, getTopicsWithPosts, toListedPost } from "~/lib/content";
+import { createMeta } from "~/lib/seo";
 
-export const meta = () => [
-  { title: "Blog | Eloy Ye" },
-  {
-    name: "description",
-    content: "Notes and writing from Eloy Ye.",
-  },
-];
+export const meta = () =>
+  createMeta({
+    description: "Notes and writing from Eloy Ye.",
+    path: "/blog",
+    title: "Blog | Eloy Ye",
+  });
 
 const BlogIndex = () => {
   const posts = getAllPosts();

@@ -4,6 +4,7 @@ import { BlogPageHeader } from "~/components/blog/BlogPageHeader";
 import { PostList } from "~/components/blog/PostList";
 import { Container } from "~/components/layout/Container";
 import { getPostsByTopic, getTopic, isTopicSlug, toListedPost } from "~/lib/content";
+import { createMeta } from "~/lib/seo";
 
 import type { Route } from "./+types/blog.$topic";
 
@@ -21,6 +22,7 @@ export const loader = ({ params }: Route.LoaderArgs) => {
   }
 
   return {
+    path: `/blog/${topic}`,
     posts: posts.map((post) => toListedPost(post)),
     topic,
     topicMeta: getTopic(topic),
@@ -32,10 +34,11 @@ export const meta = ({ data }: Route.MetaArgs) => {
     return [{ title: "Topic not found | Eloy Ye" }];
   }
 
-  return [
-    { title: `${data.topicMeta.label} | Eloy Ye` },
-    { name: "description", content: data.topicMeta.description },
-  ];
+  return createMeta({
+    description: data.topicMeta.description,
+    path: data.path,
+    title: `${data.topicMeta.label} | Eloy Ye`,
+  });
 };
 
 const BlogTopic = () => {
