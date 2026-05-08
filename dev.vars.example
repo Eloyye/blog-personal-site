@@ -7,10 +7,5 @@ TURNSTILE_SECRET=your-turnstile-secret-key
 # Where contact form emails are delivered
 CONTACT_TO_EMAIL=hello@eloyye.com
 
-# Sender address (must match SPF/DKIM records on eloyye.com)
+# Sender address (must be allowed by the Cloudflare Email Service binding)
 MAIL_FROM_ADDRESS=noreply@eloyye.com
-
-# DKIM (optional but strongly recommended for deliverability)
-# DKIM_DOMAIN=eloyye.com
-# DKIM_SELECTOR=s1
-# DKIM_PRIVATE_KEY=<base64-encoded private key>

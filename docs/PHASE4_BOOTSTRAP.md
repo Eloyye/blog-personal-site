@@ -1,4 +1,4 @@
-# Phase 4 Bootstrap — Contact Form + MailChannels + Turnstile
+# Phase 4 Bootstrap — Contact Form + Cloudflare Email Service + Turnstile
 
 This document tracks what was implemented, what requires manual setup before the contact form is fully operational, and known blockers.
 
@@ -24,7 +24,7 @@ This document tracks what was implemented, what requires manual setup before the
 | File                   | Purpose                                                                                                            |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | `worker/index.ts`      | Worker entry point — routes `/api/contact` POST to the handler, falls through to static assets for everything else |
-| `worker/contact.ts`    | Validates with Zod, rejects honeypot, verifies Turnstile token, sends email via MailChannels API                   |
+| `worker/contact.ts`    | Validates with Zod, rejects honeypot, verifies Turnstile token, sends email via Cloudflare Email Service           |
 | `worker/tsconfig.json` | Separate TypeScript config for `@cloudflare/workers-types`                                                         |
 
 ### Configuration changes
@@ -60,47 +60,34 @@ The form will not submit without a configured Turnstile widget.
    - For local dev: copy `.dev.vars.example` to `.dev.vars` and fill in `TURNSTILE_SECRET`
    - For production: set `TURNSTILE_SECRET` in Cloudflare dashboard → Workers & Pages → personal-site → Settings → Variables
 
-### 2. MailChannels availability (POTENTIAL BLOCKER)
+### 2. Cloudflare Email Service setup (BLOCKER)
 
-The Worker sends email via `https://api.mailchannels.net/tx/v1/send`. MailChannels previously offered a free transactional email API for Cloudflare Workers, but **availability has changed over time**.
+The Worker sends email through the `EMAIL` binding configured in `wrangler.jsonc`.
 
-**Before relying on MailChannels, verify:**
+**Steps:**
 
-- Visit [mailchannels.com](https://www.mailchannels.com/) and confirm the free Cloudflare Workers integration is still active
-- If MailChannels is no longer free or available, consider alternatives:
-  - **Resend** ([resend.com](https://resend.com)) — 100 emails/day free, simple REST API
-  - **SendGrid** — 100 emails/day free tier
-  - **Postmark** — developer-friendly, free trial
-  - **Amazon SES** — very cheap at scale
-
-To swap providers, update `worker/contact.ts` — replace the `sendViaMail` function with the chosen provider's API call. The rest of the handler (validation, Turnstile, honeypot) is provider-agnostic.
+1. Enable Cloudflare Email Service for the account/domain.
+2. Verify `eloyye.com` as an allowed sending domain.
+3. Keep the `send_email` binding in `wrangler.jsonc`:
+   ```jsonc
+   "send_email": [
+     {
+       "name": "EMAIL",
+       "allowed_sender_addresses": ["noreply@eloyye.com"],
+     },
+   ]
+   ```
+4. Set `MAIL_FROM_ADDRESS` to one of the allowed sender addresses.
 
 ### 3. DNS records (BLOCKER for email deliverability)
 
 Without proper DNS records, emails sent from `eloyye.com` will land in spam or be rejected entirely.
 
-**Required records on `eloyye.com`:**
+Follow Cloudflare Email Service's domain verification and DNS setup for `eloyye.com`. At minimum, keep DMARC configured:
 
-| Type | Name            | Value                                           | Purpose                                                                                                                                |
-| ---- | --------------- | ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| TXT  | `@`             | `v=spf1 include:relay.mailchannels.net ~all`    | SPF — authorizes MailChannels to send on your behalf. **Merge** with any existing SPF record (only one SPF record allowed per domain). |
-| TXT  | `_mailchannels` | `v=mc1 cfid=<your-pages-project>.pages.dev`     | MailChannels domain lockdown — prevents spoofing. Replace `<your-pages-project>` with your actual Pages/Workers subdomain.             |
-| TXT  | `_dmarc`        | `v=DMARC1; p=none; rua=mailto:hello@eloyye.com` | DMARC — start with `p=none` for monitoring, tighten to `p=quarantine` or `p=reject` after confirming legitimate mail passes.           |
-
-**Strongly recommended (DKIM):**
-
-1. Generate an RSA keypair (2048-bit):
-   ```bash
-   openssl genrsa -out dkim_private.pem 2048
-   openssl rsa -in dkim_private.pem -pubout -out dkim_public.pem
-   ```
-2. Publish the public key as a TXT record:
-   - Name: `s1._domainkey`
-   - Value: `v=DKIM1; k=rsa; p=<base64-public-key-single-line>`
-3. Set Worker env vars:
-   - `DKIM_DOMAIN=eloyye.com`
-   - `DKIM_SELECTOR=s1`
-   - `DKIM_PRIVATE_KEY=<base64-encoded-private-key>`
+| Type | Name     | Value                                           | Purpose                                                                                                                      |
+| ---- | -------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| TXT  | `_dmarc` | `v=DMARC1; p=none; rua=mailto:hello@eloyye.com` | DMARC — start with `p=none` for monitoring, tighten to `p=quarantine` or `p=reject` after confirming legitimate mail passes. |
 
 ### 4. Worker environment variables (BLOCKER)
 
@@ -111,9 +98,6 @@ The Worker expects these env vars. Without them, the `/api/contact` endpoint ret
 | `TURNSTILE_SECRET`  | Yes      | `.dev.vars` (local), Workers Settings (prod) | Turnstile secret key                         |
 | `CONTACT_TO_EMAIL`  | Yes      | `.dev.vars` (local), Workers Settings (prod) | Destination email (e.g., `hello@eloyye.com`) |
 | `MAIL_FROM_ADDRESS` | Yes      | `.dev.vars` (local), Workers Settings (prod) | Sender address (e.g., `noreply@eloyye.com`)  |
-| `DKIM_DOMAIN`       | No       | `.dev.vars` (local), Workers Settings (prod) | e.g., `eloyye.com`                           |
-| `DKIM_SELECTOR`     | No       | `.dev.vars` (local), Workers Settings (prod) | e.g., `s1`                                   |
-| `DKIM_PRIVATE_KEY`  | No       | `.dev.vars` (local), Workers Settings (prod) | Base64-encoded DKIM private key              |
 
 ### 5. Client build-time env var (BLOCKER)
 

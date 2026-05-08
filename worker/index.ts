@@ -2,12 +2,10 @@ import { handleContact } from "./contact";
 
 export interface Env {
   ASSETS: Fetcher;
+  EMAIL: SendEmail;
   TURNSTILE_SECRET: string;
   CONTACT_TO_EMAIL: string;
   MAIL_FROM_ADDRESS: string;
-  DKIM_DOMAIN?: string;
-  DKIM_SELECTOR?: string;
-  DKIM_PRIVATE_KEY?: string;
 }
 
 export default {

@@ -3,7 +3,6 @@ import { contactSchema } from "../app/lib/contact-schema";
 import type { Env } from "./index";
 
 const TURNSTILE_VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
-const MAILCHANNELS_SEND_URL = "https://api.mailchannels.net/tx/v1/send";
 
 function stripCRLF(value: string): string {
   return value.replace(/[\r\n]/g, "");
@@ -36,32 +35,13 @@ async function verifyTurnstile(token: string, ip: string, secret: string): Promi
   return data.success;
 }
 
-async function sendViaMail(
-  env: Env,
-  name: string,
-  email: string,
-  message: string,
-): Promise<Response> {
-  const payload: Record<string, unknown> = {
-    personalizations: [{ to: [{ email: env.CONTACT_TO_EMAIL }] }],
-    from: { email: env.MAIL_FROM_ADDRESS, name: "eloyye.com" },
-    reply_to: { email },
+async function sendContactEmail(env: Env, name: string, email: string, message: string) {
+  return env.EMAIL.send({
+    to: env.CONTACT_TO_EMAIL,
+    from: env.MAIL_FROM_ADDRESS,
+    replyTo: email,
     subject: stripCRLF(`Contact form: ${name}`),
-    content: [{ type: "text/plain", value: message }],
-  };
-
-  if (env.DKIM_DOMAIN && env.DKIM_SELECTOR && env.DKIM_PRIVATE_KEY) {
-    (payload.personalizations as Array<Record<string, unknown>>)[0].dkim_domain = env.DKIM_DOMAIN;
-    (payload.personalizations as Array<Record<string, unknown>>)[0].dkim_selector =
-      env.DKIM_SELECTOR;
-    (payload.personalizations as Array<Record<string, unknown>>)[0].dkim_private_key =
-      env.DKIM_PRIVATE_KEY;
-  }
-
-  return fetch(MAILCHANNELS_SEND_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    text: [`Name: ${name}`, `Email: ${email}`, "", message].join("\n"),
   });
 }
 
@@ -104,15 +84,7 @@ export async function handleContact(request: Request, env: Env): Promise<Respons
   }
 
   try {
-    const mailRes = await sendViaMail(env, name, email, message);
-    if (!mailRes.ok) {
-      const text = await mailRes.text();
-      console.error("MailChannels error:", mailRes.status, text);
-      return Response.json(
-        { error: "Failed to send message. Please try again later." },
-        { status: 502 },
-      );
-    }
+    await sendContactEmail(env, name, email, message);
   } catch (err) {
     console.error("Mail send error:", err);
     return Response.json(

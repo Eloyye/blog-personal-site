@@ -164,4 +164,4 @@ Keep changes aligned with [docs/PLAN.md](docs/PLAN.md):
 - Keep project content in `app/content/projects`.
 - Prefer build-time/static behavior over runtime services.
 - Keep MDX frontmatter valid and fail builds loudly for duplicate or malformed canonical paths.
-- Do not commit secrets. Cloudflare values such as Turnstile secrets and MailChannels DKIM keys belong in Pages environment variables.
+- Do not commit secrets. Cloudflare values such as Turnstile secrets belong in Worker environment variables.
