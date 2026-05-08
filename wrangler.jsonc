@@ -37,7 +37,7 @@
   "preview_urls": false,
   "send_email": [
     {
-      "name": "SEND_EMAIL",
+      "name": "EMAIL",
       "allowed_sender_addresses": ["noreply@eloyye.com"],
     },
   ],
