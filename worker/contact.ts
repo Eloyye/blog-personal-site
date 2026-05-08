@@ -9,10 +9,30 @@ function stripCRLF(value: string): string {
   return value.replace(/[\r\n]/g, "");
 }
 
+type TurnstileVerifyResponse = {
+  success: boolean;
+  challenge_ts?: string;
+  hostname?: string;
+  action?: string;
+  cdata?: string;
+  "error-codes"?: string[];
+};
+
 async function verifyTurnstile(token: string, ip: string, secret: string): Promise<boolean> {
   const body = new URLSearchParams({ secret, response: token, remoteip: ip });
   const res = await fetch(TURNSTILE_VERIFY_URL, { method: "POST", body });
-  const data = (await res.json()) as { success: boolean };
+  const data = (await res.json()) as TurnstileVerifyResponse;
+
+  if (!data.success) {
+    console.error("Turnstile verification failed", {
+      status: res.status,
+      errorCodes: data["error-codes"],
+      hostname: data.hostname,
+      action: data.action,
+      challengeTs: data.challenge_ts,
+    });
+  }
+
   return data.success;
 }
 
