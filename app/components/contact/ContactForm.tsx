@@ -184,9 +184,9 @@ const ContactForm = () => {
         You can also email me directly at{" "}
         <a
           className="underline underline-offset-4 hover:text-foreground"
-          href="mailto:hello@eloyye.com"
+          href="mailto:yeluo.eloy@gmail.com"
         >
-          hello@eloyye.com
+          yeluo.eloy@gmail.com
         </a>
         .
       </p>
