@@ -10,7 +10,7 @@ import { contactSchema } from "~/lib/contact-schema";
 
 import type { FormEvent } from "react";
 
-const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY ?? "";
+const TURNSTILE_SITE_KEY = "0x4AAAAAADKo45g4IOKTQDA6";
 
 type FieldErrors = Partial<Record<"name" | "email" | "message" | "turnstileToken", string>>;
 
