@@ -6,23 +6,23 @@ A comprehensive build plan for `eloyye.com`: a personal site with About, Work, C
 
 ## 1. Stack Summary
 
-| Layer                     | Choice                                      | Notes                             |
-| ------------------------- | ------------------------------------------- | --------------------------------- |
-| Package manager / runtime | Bun                                         | Fast installs, native TS          |
-| Build tool                | Vite                                        | RR7's official build pipeline     |
-| Framework                 | React Router v7 (SSG / prerender mode)      | Full static output                |
-| Language                  | TypeScript (strict)                         |                                   |
-| UI primitives             | shadcn/ui                                   | Copy-in components, owned by repo |
-| Styling                   | Tailwind CSS v4                             | Utility-first                     |
-| Content                   | MDX (`.mdx` in repo)                        | Posts + Projects                  |
-| MDX bundler               | `@mdx-js/rollup` via Vite                   |                                   |
-| Syntax highlight          | `rehype-pretty-code` (Shiki under the hood) | Build-time, zero runtime JS       |
-| Hosting                   | Cloudflare Pages (static)                   | Free tier                         |
-| Contact form backend      | Cloudflare Pages Function → MailChannels    | Free, no API key                  |
-| Spam protection           | Cloudflare Turnstile                        | Free, privacy-friendly            |
-| Analytics                 | Cloudflare Web Analytics                    | Free, cookieless                  |
-| Domain                    | `eloyye.com` (already owned)                | Move DNS to Cloudflare            |
-| RSS / sitemap             | Generated at build from MDX frontmatter     |                                   |
+| Layer                     | Choice                                       | Notes                             |
+| ------------------------- | -------------------------------------------- | --------------------------------- |
+| Package manager / runtime | Bun                                          | Fast installs, native TS          |
+| Build tool                | Vite                                         | RR7's official build pipeline     |
+| Framework                 | React Router v7 (SSG / prerender mode)       | Full static output                |
+| Language                  | TypeScript (strict)                          |                                   |
+| UI primitives             | shadcn/ui                                    | Copy-in components, owned by repo |
+| Styling                   | Tailwind CSS v4                              | Utility-first                     |
+| Content                   | MDX (`.mdx` in repo)                         | Posts + Projects                  |
+| MDX bundler               | `@mdx-js/rollup` via Vite                    |                                   |
+| Syntax highlight          | `rehype-pretty-code` (Shiki under the hood)  | Build-time, zero runtime JS       |
+| Hosting                   | Cloudflare Pages (static)                    | Free tier                         |
+| Contact form backend      | Cloudflare Worker + Cloudflare Email Service | Native Worker email binding       |
+| Spam protection           | Cloudflare Turnstile                         | Free, privacy-friendly            |
+| Analytics                 | Cloudflare Web Analytics                     | Free, cookieless                  |
+| Domain                    | `eloyye.com` (already owned)                 | Move DNS to Cloudflare            |
+| RSS / sitemap             | Generated at build from MDX frontmatter      |                                   |
 
 **Non-goals:** comments, server-rendered dynamic pages, search-as-a-service, image CDN beyond Cloudflare's defaults.
 
@@ -306,7 +306,7 @@ Each phase ends in a deployable, working site. Don't move on until the previous 
 - **Long titles wrapping in cards:** clamp with `line-clamp-N` utility.
 - **No-JS fallback:** RR7 SSG ships JS for hydration but content is in HTML. Test with JS disabled — links should work, theme defaults to system.
 
-### Phase 4 — Contact form + MailChannels + Turnstile
+### Phase 4 — Contact form + Cloudflare Email Service + Turnstile
 
 **Goal:** working contact form that emails you.
 
@@ -318,36 +318,35 @@ Each phase ends in a deployable, working site. Don't move on until the previous 
    - Verify Turnstile token via `https://challenges.cloudflare.com/turnstile/v0/siteverify` with `TURNSTILE_SECRET` and the requester's IP (`request.headers.get("CF-Connecting-IP")`)
    - Honeypot field: include a hidden `website` input; reject if non-empty
    - Rate limit by IP using Cloudflare KV or the Workers Rate Limiting API (e.g., 5/hour/IP)
-   - Send via MailChannels:
-     ```
-     POST https://api.mailchannels.net/tx/v1/send
-     {
-       "personalizations": [{ "to": [{ "email": "you@eloyye.com" }] }],
-       "from": { "email": "noreply@eloyye.com", "name": "eloyye.com" },
-       "reply_to": { "email": <user_email> },
-       "subject": "Contact form: <name>",
-       "content": [{ "type": "text/plain", "value": <message> }]
-     }
+   - Send via Cloudflare Email Service:
+     ```ts
+     await env.EMAIL.send({
+       to: "you@eloyye.com",
+       from: "noreply@eloyye.com",
+       replyTo: userEmail,
+       subject: "Contact form: <name>",
+       text: message,
+     });
      ```
    - Return 200 JSON; client shows toast.
-4. **DNS records on `eloyye.com`** — required for MailChannels to accept and for inbox deliverability:
-   - **SPF (TXT @):** `v=spf1 include:relay.mailchannels.net ~all` (merge with any existing SPF — only one SPF record is allowed per domain)
-   - **MailChannels domain lock-down (TXT `_mailchannels`):** `v=mc1 cfid=<your-account>.pages.dev cfid=<custom-pages-subdomain>` — without this, anyone using MailChannels can spoof `eloyye.com`
-   - **DKIM:** generate a keypair, publish public key as TXT, sign in the API call with `dkim_domain`, `dkim_selector`, `dkim_private_key`. Strongly recommended.
+4. **Email Service setup on `eloyye.com`** — required for sending and inbox deliverability:
+   - Enable Cloudflare Email Service for the domain.
+   - Configure the Worker `send_email` binding.
+   - Restrict allowed sender addresses to `noreply@eloyye.com`.
    - **DMARC (TXT `_dmarc`):** start with `v=DMARC1; p=none; rua=mailto:you@eloyye.com` for monitoring, tighten later.
 5. Test from Preview deploys before merging to Production.
 
 **Edge cases:**
 
-- **MailChannels free abuse policy:** they require the `_mailchannels` lockdown TXT or they will reject. Verify before going live.
+- **Email Service sender verification:** `from` must be accepted by the Cloudflare Email Service binding and domain setup.
 - **Turnstile token replay:** tokens are single-use; backend must verify each one and never trust the client.
 - **CORS:** Pages Function and form are same-origin → no CORS needed. If you ever split them, lock `Access-Control-Allow-Origin` to your domain only.
-- **Email injection:** never interpolate user input into headers (`Subject`, `From`, etc.) without stripping CR/LF. The MailChannels JSON API mitigates this, but still strip `\r\n` from any field that flows into a header.
-- **Bounces:** `noreply@` won't accept replies. Use `reply_to` set to the user so you can reply directly from your inbox.
+- **Email injection:** never interpolate user input into headers (`Subject`, `From`, etc.) without stripping CR/LF.
+- **Bounces:** `noreply@` won't accept replies. Use `replyTo` set to the user so you can reply directly from your inbox.
 - **Disposable email domains:** optional — block known disposable domains via a small list if spam becomes an issue.
 - **Form double-submit:** disable button while in-flight; debounce.
 - **JS disabled:** form won't work without JS (Turnstile + fetch). Acceptable for a personal site; mention an email fallback in the page copy.
-- **Secrets handling:** `TURNSTILE_SECRET` and `MAILCHANNELS_DKIM_PRIVATE_KEY` go in Pages env vars (encrypted), never in the repo. `.dev.vars` for local dev, gitignored.
+- **Secrets handling:** `TURNSTILE_SECRET` goes in Worker env vars (encrypted), never in the repo. `.dev.vars` for local dev, gitignored.
 
 ### Phase 5 — RSS, sitemap, robots, Open Graph, analytics, polish
 
@@ -434,7 +433,7 @@ Each phase ends in a deployable, working site. Don't move on until the previous 
 
 - Cloudflare Pages: $0 (well within free tier)
 - Workers/Functions: $0 (100k requests/day free)
-- MailChannels: $0
+- Cloudflare Email Service: $0
 - Turnstile: $0
 - Web Analytics: $0
 - Domain renewal: ~$10/year (already owned)
@@ -468,7 +467,6 @@ A consolidated reference — most are covered above in context, but worth scanni
 - Header injection via CR/LF → strip
 - Replay of Turnstile token → backend single-use validation
 - Rate limit bypass via rotating IPs → accept; add per-session limit if needed
-- DKIM key rotation → document the process; selector versioning (`s1`, `s2`)
 - DMARC at `p=none` initially; tighten only after confirming legit mail passes
 
 ### Security
@@ -492,7 +490,7 @@ A consolidated reference — most are covered above in context, but worth scanni
 
 ### Domain / DNS
 
-- Email DNS records (SPF, DKIM, `_mailchannels`, DMARC) before going live with the contact form
+- Cloudflare Email Service domain verification and DMARC before going live with the contact form
 - Apex vs `www` canonical
 - Cloudflare proxy ON for the apex (orange cloud) — enables analytics, HTTPS, caching
 
@@ -522,7 +520,7 @@ Documenting explicitly to prevent scope creep:
 | 1     | `https://eloyye.com` returns 200, valid cert, deploys on push                                               |
 | 2     | One MDX post live, prerendered, syntax highlighted, listed at `/blog`                                       |
 | 3     | About + Work + layout + dark mode shipped, Lighthouse ≥ 95 across the board                                 |
-| 4     | Contact form sends to your inbox, Turnstile blocks bots, DKIM/SPF/DMARC pass at mail-tester.com ≥ 9/10      |
+| 4     | Contact form sends to your inbox, Turnstile blocks bots, and DMARC/domain verification is configured        |
 | 5     | RSS validates, sitemap submitted, analytics receiving events, security headers green on securityheaders.com |
 
 ---

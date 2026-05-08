@@ -11,10 +11,14 @@
   "vars": {
     "VITE_TURNSTILE_SITE_KEY": "0x4AAAAAADKo45g4IOKTQDA6",
     "CONTACT_TO_EMAIL": "yeluo.eloy@gmail.com",
-    "DKIM_DOMAIN": "eloyye.com",
-    "DKIM_SELECTOR": "s1",
     "MAIL_FROM_ADDRESS": "noreply@eloyye.com",
   },
+  "send_email": [
+    {
+      "name": "EMAIL",
+      "allowed_sender_addresses": ["noreply@eloyye.com"],
+    },
+  ],
   "routes": [
     {
       "pattern": "eloyye.com",
