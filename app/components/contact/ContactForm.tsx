@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { Turnstile } from "~/components/contact/Turnstile";
@@ -11,15 +11,56 @@ import { contactSchema } from "~/lib/contact-schema";
 import type { FormEvent } from "react";
 
 const TURNSTILE_SITE_KEY = "0x4AAAAAADKo45g4IOKTQDA6";
+const CONTACT_FORM_STORAGE_KEY = "contact-form-draft";
 
 type FieldErrors = Partial<Record<"name" | "email" | "message" | "turnstileToken", string>>;
+type ContactFormDraft = {
+  name: string;
+  email: string;
+  message: string;
+};
+
+const emptyDraft: ContactFormDraft = {
+  name: "",
+  email: "",
+  message: "",
+};
+
+const readStoredDraft = (): ContactFormDraft => {
+  if (typeof window === "undefined") {
+    return emptyDraft;
+  }
+
+  const stored = window.sessionStorage.getItem(CONTACT_FORM_STORAGE_KEY);
+  if (!stored) {
+    return emptyDraft;
+  }
+
+  try {
+    const parsed = JSON.parse(stored) as Partial<ContactFormDraft>;
+
+    return {
+      name: typeof parsed.name === "string" ? parsed.name : "",
+      email: typeof parsed.email === "string" ? parsed.email : "",
+      message: typeof parsed.message === "string" ? parsed.message : "",
+    };
+  } catch {
+    window.sessionStorage.removeItem(CONTACT_FORM_STORAGE_KEY);
+    return emptyDraft;
+  }
+};
 
 const ContactForm = () => {
+  const [draft, setDraft] = useState<ContactFormDraft>(emptyDraft);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const turnstileTokenRef = useRef("");
   const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    setDraft(readStoredDraft());
+  }, []);
 
   const handleVerify = useCallback((token: string) => {
     turnstileTokenRef.current = token;
@@ -30,15 +71,23 @@ const ContactForm = () => {
     turnstileTokenRef.current = "";
   }, []);
 
+  const updateDraft = (field: keyof ContactFormDraft, value: string) => {
+    setDraft((prev) => {
+      const next = { ...prev, [field]: value };
+      window.sessionStorage.setItem(CONTACT_FORM_STORAGE_KEY, JSON.stringify(next));
+      return next;
+    });
+  };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrors({});
 
     const formData = new FormData(e.currentTarget);
     const raw = {
-      name: formData.get("name") as string,
-      email: formData.get("email") as string,
-      message: formData.get("message") as string,
+      name: draft.name,
+      email: draft.email,
+      message: draft.message,
       website: formData.get("website") as string,
       turnstileToken: turnstileTokenRef.current,
     };
@@ -73,6 +122,8 @@ const ContactForm = () => {
       }
 
       setSubmitted(true);
+      setDraft(emptyDraft);
+      window.sessionStorage.removeItem(CONTACT_FORM_STORAGE_KEY);
       formRef.current?.reset();
       toast.success("Message sent! I'll get back to you soon.");
     } catch (err) {
@@ -101,6 +152,8 @@ const ContactForm = () => {
         <Input
           id="contact-name"
           name="name"
+          value={draft.name}
+          onChange={(e) => updateDraft("name", e.target.value)}
           autoComplete="name"
           placeholder="Your name"
           maxLength={100}
@@ -121,6 +174,8 @@ const ContactForm = () => {
           id="contact-email"
           name="email"
           type="email"
+          value={draft.email}
+          onChange={(e) => updateDraft("email", e.target.value)}
           autoComplete="email"
           placeholder="you@example.com"
           required
@@ -139,6 +194,8 @@ const ContactForm = () => {
         <Textarea
           id="contact-message"
           name="message"
+          value={draft.message}
+          onChange={(e) => updateDraft("message", e.target.value)}
           placeholder="What's on your mind?"
           maxLength={5000}
           rows={5}
