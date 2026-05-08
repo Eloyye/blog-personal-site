@@ -1,14 +1,14 @@
 import { ContactForm } from "~/components/contact/ContactForm";
 import { Container } from "~/components/layout/Container";
 import { Toaster } from "~/components/ui/sonner";
+import { createMeta } from "~/lib/seo";
 
-export const meta = () => [
-  { title: "Contact | Eloy Ye" },
-  {
-    name: "description",
-    content: "Get in touch with Eloy Ye — send a message or find other ways to connect.",
-  },
-];
+export const meta = () =>
+  createMeta({
+    description: "Get in touch with Eloy Ye: send a message or find other ways to connect.",
+    path: "/contact",
+    title: "Contact | Eloy Ye",
+  });
 
 const Contact = () => (
   <Container className="py-14 sm:py-20">

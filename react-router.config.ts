@@ -12,6 +12,7 @@ export default {
       "/work",
       "/contact",
       "/blog",
+      "/404",
       ...topics.map((topic) => `/blog/${topic}`),
       ...posts.map((post) => `/blog/${post.topic}/${post.slug}`),
     ];

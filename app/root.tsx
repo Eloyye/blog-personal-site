@@ -3,6 +3,7 @@ import React from "react";
 import { Footer } from "~/components/layout/Footer";
 import { Header } from "~/components/layout/Header";
 import { themeBootstrapScript } from "~/lib/theme";
+import { absoluteUrl } from "~/lib/seo";
 import "./app.css";
 
 const Layout = function Layout({ children }: { children: React.ReactNode }) {
@@ -11,11 +12,16 @@ const Layout = function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="ey_favicon.ico" />
+        <link rel="icon" href="/ey_favicon.ico" />
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title="Eloy Ye"
+          href={absoluteUrl("/rss.xml")}
+        />
         <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
         <Meta />
         <Links />
-        <title>Eloy Ye</title>
       </head>
       <body className="min-h-svh bg-background text-foreground antialiased">
         {children}

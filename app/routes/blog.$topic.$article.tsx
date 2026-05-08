@@ -5,7 +5,8 @@ import { mdxComponents } from "~/components/mdx/mdx-components";
 import { Badge } from "~/components/ui/badge";
 import { buttonVariants } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
-import { getPostByTopicAndSlug, getTopic, isTopicSlug } from "~/lib/content";
+import { getPostByTopicAndSlug, getPostPath, getTopic, isTopicSlug } from "~/lib/content";
+import { createMeta } from "~/lib/seo";
 import cn from "~/lib/utils";
 
 import type { Route } from "./+types/blog.$topic.$article";
@@ -27,6 +28,8 @@ export const loader = ({ params }: Route.LoaderArgs) => {
   return {
     date: post.date,
     description: post.description,
+    ogImage: post.ogImage,
+    path: getPostPath(post),
     readingTime: post.readingTime,
     slug: post.slug,
     tags: post.tags ?? [],
@@ -42,11 +45,16 @@ export const meta = ({ data }: Route.MetaArgs) => {
   }
 
   return [
-    { title: `${data.title} | Eloy Ye` },
-    { name: "description", content: data.description },
-    { property: "og:title", content: data.title },
-    { property: "og:description", content: data.description },
-    { property: "og:type", content: "article" },
+    ...createMeta({
+      description: data.description,
+      image: data.ogImage,
+      path: data.path,
+      title: `${data.title} | Eloy Ye`,
+      type: "article",
+    }),
+    { property: "article:published_time", content: data.date },
+    { property: "article:section", content: data.topicMeta.label },
+    ...data.tags.map((tag) => ({ property: "article:tag", content: tag })),
   ];
 };
 

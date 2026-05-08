@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Eloy Ye</title>
+  <desc id="desc">Default social preview image for eloyye.com.</desc>
+  <rect width="1200" height="630" fill="#f7f3ec"/>
+  <rect x="54" y="54" width="1092" height="522" rx="36" fill="#111827"/>
+  <path d="M54 431 C248 356 338 461 522 386 C720 305 812 161 1146 237 L1146 576 L54 576 Z" fill="#2f6f73"/>
+  <path d="M54 486 C229 432 374 502 548 451 C735 397 881 284 1146 343 L1146 576 L54 576 Z" fill="#d88f3d"/>
+  <circle cx="987" cy="169" r="64" fill="#f7f3ec" opacity="0.94"/>
+  <text x="112" y="248" fill="#f7f3ec" font-family="Figtree, Inter, Arial, sans-serif" font-size="88" font-weight="700" letter-spacing="0">Eloy Ye</text>
+  <text x="116" y="320" fill="#d1d5db" font-family="Figtree, Inter, Arial, sans-serif" font-size="34" font-weight="500" letter-spacing="0">Software work and writing</text>
+  <text x="116" y="500" fill="#f7f3ec" font-family="Figtree, Inter, Arial, sans-serif" font-size="28" font-weight="600" letter-spacing="0">eloyye.com</text>
+</svg>
