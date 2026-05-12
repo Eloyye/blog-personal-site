@@ -2,7 +2,7 @@ export const siteUrl = "https://eloyye.com";
 export const siteName = "Eloy Ye";
 export const defaultDescription =
   "Personal site for Eloy Ye: software work, writing, and ways to get in touch.";
-export const defaultOgImagePath = "/og-default.png";
+export const defaultOgImagePath = "/og-default.webp";
 
 export const absoluteUrl = (path: string) => new URL(path, siteUrl).toString();
 

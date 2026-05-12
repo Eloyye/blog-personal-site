@@ -62,7 +62,7 @@ A comprehensive build plan for `eloyye.com`: a personal site with About, Work, C
 ├── public/
 │   ├── favicon.svg
 │   ├── robots.txt
-│   └── og-default.png
+│   └── og-default.webp
 ├── scripts/
 │   ├── build-rss.ts              # Run post-build
 │   └── collect-slugs.ts          # Feeds prerender list
@@ -359,7 +359,7 @@ Each phase ends in a deployable, working site. Don't move on until the previous 
 2. **Sitemap** (`/sitemap.xml`): same pattern, list all canonical URLs.
 3. **`robots.txt`**: allow all, point to sitemap.
 4. **Open Graph:**
-   - Default `og:image` at `public/og-default.png` (1200×630)
+   - Default `og:image` at `public/og-default.webp` (1200×630)
    - Per-post: either author a static image alongside the MDX, or generate at build with `satori` + `@resvg/resvg-js` (free, no runtime cost)
    - Set `og:title`, `og:description`, `og:url`, `og:type`, Twitter card meta in each route's `meta` export
 5. **Cloudflare Web Analytics:**

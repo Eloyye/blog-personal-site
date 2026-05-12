@@ -27,8 +27,8 @@ This document tracks what was implemented for discoverability/shareability, what
 | `app/routes/blog._index.tsx`          | Uses shared SEO metadata                                                                           |
 | `app/routes/blog.$topic.tsx`          | Adds canonical topic path metadata                                                                 |
 | `app/routes/blog.$topic.$article.tsx` | Adds canonical post metadata, article Open Graph fields, article section, and article tag metadata |
-| `public/og-default.png`               | Default 1200x630 social preview image                                                              |
-| `public/og-default.svg`               | Source SVG used to generate `og-default.png`                                                       |
+| `public/og-default.webp`              | Default 1200x630 social preview image                                                              |
+| `public/og-default.svg`               | Source SVG used to generate `og-default.webp`                                                      |
 
 ### Routing and deployment config
 
@@ -52,7 +52,7 @@ After `bun run build`, these files should exist:
 | `build/client/rss.xml`        | `scripts/build-rss.ts` + `app/content/posts/*.mdx`     |
 | `build/client/sitemap.xml`    | `scripts/build-sitemap.ts` + published route inventory |
 | `build/client/404.html`       | `scripts/build-404.ts` from prerendered `/404`         |
-| `build/client/og-default.png` | Copied from `public/og-default.png`                    |
+| `build/client/og-default.webp` | Copied from `public/og-default.webp`                  |
 | `build/client/_headers`       | Copied from `public/_headers`                          |
 | `build/client/robots.txt`     | Copied from `public/robots.txt`                        |
 
@@ -130,7 +130,7 @@ The current CSP is `Content-Security-Policy-Report-Only` on purpose. Enforce onl
 - [ ] `build/client/robots.txt` points to `https://eloyye.com/sitemap.xml`
 - [ ] Production deploy serves `/rss.xml`
 - [ ] Production deploy serves `/sitemap.xml`
-- [ ] Production deploy serves `/og-default.png`
+- [ ] Production deploy serves `/og-default.webp`
 - [ ] Unknown production URLs serve the custom 404 page
 
 ---
@@ -160,7 +160,7 @@ Cloudflare Pages `_headers` rules inherit across matching rules. The `/assets/*`
 
 ### Open Graph images
 
-The default OG image is static and committed as `public/og-default.png`. Per-post images can be added later by setting `ogImage` in MDX frontmatter to a public path or absolute URL.
+The default OG image is static and committed as `public/og-default.webp`. Per-post images can be added later by setting `ogImage` in MDX frontmatter to a public path or absolute URL.
 
 Crawler caches are sticky. If the default OG image changes, consider changing the image URL or using platform debuggers to refresh cached previews.
 

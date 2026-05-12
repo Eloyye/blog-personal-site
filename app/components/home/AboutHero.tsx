@@ -31,7 +31,7 @@ const AboutHero = () => (
       alt="Eloy Ye"
       className="mx-auto aspect-square w-56 rounded-full object-cover shadow-xl ring-1 ring-border sm:w-64 md:w-full"
       height="1086"
-      src="/me.png"
+      src="/me.webp"
       width="1448"
     />
   </div>
