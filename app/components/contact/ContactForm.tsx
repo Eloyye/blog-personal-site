@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { Turnstile } from "~/components/contact/Turnstile";
@@ -51,16 +51,12 @@ const readStoredDraft = (): ContactFormDraft => {
 };
 
 const ContactForm = () => {
-  const [draft, setDraft] = useState<ContactFormDraft>(emptyDraft);
+  const [draft, setDraft] = useState<ContactFormDraft>(readStoredDraft);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const turnstileTokenRef = useRef("");
   const formRef = useRef<HTMLFormElement>(null);
-
-  useEffect(() => {
-    setDraft(readStoredDraft());
-  }, []);
 
   const handleVerify = useCallback((token: string) => {
     turnstileTokenRef.current = token;

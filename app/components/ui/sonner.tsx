@@ -6,7 +6,7 @@ import {
   MultiplicationSignCircleIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Toaster as Sonner } from "sonner";
 
 import { getPreferredTheme } from "~/lib/theme";
@@ -15,11 +15,9 @@ import type { ToasterProps } from "sonner";
 import type { Theme } from "~/lib/theme";
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const [theme, setTheme] = useState<Theme>("light");
-
-  useEffect(() => {
-    setTheme(getPreferredTheme());
-  }, []);
+  const [theme] = useState<Theme>(() =>
+    typeof window === "undefined" ? "light" : getPreferredTheme(),
+  );
 
   return (
     <Sonner
