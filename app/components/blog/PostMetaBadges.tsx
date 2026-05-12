@@ -7,7 +7,7 @@ type PostMetaBadgesProps = {
   tags: string[];
   topic?: {
     label: string;
-    path: string;
+    path?: string;
   };
 };
 
@@ -16,7 +16,7 @@ const PostMetaBadges = ({ readingTime, tags, topic }: PostMetaBadgesProps) => (
     <Badge variant="secondary">{readingTime}</Badge>
     {topic ? (
       <Badge variant="outline">
-        <Link to={topic.path}>{topic.label}</Link>
+        {topic.path ? <Link to={topic.path}>{topic.label}</Link> : topic.label}
       </Badge>
     ) : null}
     {tags.map((tag) => (
