@@ -47,14 +47,14 @@ This document tracks what was implemented for discoverability/shareability, what
 
 After `bun run build`, these files should exist:
 
-| Output                        | Expected source                                        |
-| ----------------------------- | ------------------------------------------------------ |
-| `build/client/rss.xml`        | `scripts/build-rss.ts` + `app/content/posts/*.mdx`     |
-| `build/client/sitemap.xml`    | `scripts/build-sitemap.ts` + published route inventory |
-| `build/client/404.html`       | `scripts/build-404.ts` from prerendered `/404`         |
-| `build/client/og-default.webp` | Copied from `public/og-default.webp`                  |
-| `build/client/_headers`       | Copied from `public/_headers`                          |
-| `build/client/robots.txt`     | Copied from `public/robots.txt`                        |
+| Output                         | Expected source                                        |
+| ------------------------------ | ------------------------------------------------------ |
+| `build/client/rss.xml`         | `scripts/build-rss.ts` + `app/content/posts/*.mdx`     |
+| `build/client/sitemap.xml`     | `scripts/build-sitemap.ts` + published route inventory |
+| `build/client/404.html`        | `scripts/build-404.ts` from prerendered `/404`         |
+| `build/client/og-default.webp` | Copied from `public/og-default.webp`                   |
+| `build/client/_headers`        | Copied from `public/_headers`                          |
+| `build/client/robots.txt`      | Copied from `public/robots.txt`                        |
 
 The RSS feed uses the canonical post URL as `<guid isPermaLink="true">`. Do not reuse slugs for unrelated posts.
 
