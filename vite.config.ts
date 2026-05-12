@@ -7,6 +7,7 @@ import rehypeSlug from "rehype-slug";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkGfm from "remark-gfm";
 import remarkMdxFrontmatter from "remark-mdx-frontmatter";
+import babel from "vite-plugin-babel";
 import { defineConfig } from "vite";
 
 export default defineConfig({
@@ -37,6 +38,19 @@ export default defineConfig({
     },
     tailwindcss(),
     reactRouter(),
+    babel({
+      babelConfig: {
+        presets: [
+          [
+            "@babel/preset-typescript",
+            { allowDeclareFields: true, allExtensions: true, isTSX: true },
+          ],
+          ["@babel/preset-react", { runtime: "automatic" }],
+        ],
+        plugins: ["babel-plugin-react-compiler"],
+      },
+      filter: /\/app\/.*\.[jt]sx(?:\?.*)?$/,
+    }),
   ],
   resolve: {
     tsconfigPaths: true,

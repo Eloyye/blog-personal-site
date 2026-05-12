@@ -8,13 +8,13 @@ import { getPreferredTheme, setDocumentTheme, themeStorageKey } from "~/lib/them
 import type { Theme } from "~/lib/theme";
 
 const ThemeToggle = () => {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>(() =>
+    typeof window === "undefined" ? "light" : getPreferredTheme(),
+  );
 
   useEffect(() => {
-    const preferredTheme = getPreferredTheme();
-    setTheme(preferredTheme);
-    setDocumentTheme(preferredTheme);
-  }, []);
+    setDocumentTheme(theme);
+  }, [theme]);
 
   const nextTheme = theme === "dark" ? "light" : "dark";
 
