@@ -13,6 +13,7 @@ export type PostFrontmatter = {
   tags?: string[];
   draft?: boolean;
   ogImage?: string;
+  cover?: string;
 };
 
 export type Post = PostFrontmatter & {
@@ -21,6 +22,7 @@ export type Post = PostFrontmatter & {
 };
 
 export type ListedPost = {
+  cover?: string;
   date: string;
   description: string;
   path: string;
@@ -28,7 +30,7 @@ export type ListedPost = {
   slug: string;
   tags: string[];
   title: string;
-  topic?: TopicSlug;
+  topic: TopicSlug;
   topicLabel?: string;
 };
 
@@ -93,6 +95,7 @@ export const getPostPath = (post: Pick<Post, "slug" | "topic">) =>
   `/blog/${post.topic}/${post.slug}`;
 
 export const toListedPost = (post: Post, options: { includeTopic?: boolean } = {}): ListedPost => ({
+  cover: post.cover,
   date: post.date,
   description: post.description,
   path: getPostPath(post),
@@ -100,7 +103,7 @@ export const toListedPost = (post: Post, options: { includeTopic?: boolean } = {
   slug: post.slug,
   tags: post.tags ?? [],
   title: post.title,
-  topic: options.includeTopic ? post.topic : undefined,
+  topic: post.topic,
   topicLabel: options.includeTopic ? getTopic(post.topic).label : undefined,
 });
 

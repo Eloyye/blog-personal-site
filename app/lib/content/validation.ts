@@ -73,6 +73,10 @@ export const assertPostFrontmatter = (value: unknown, path: string): PostFrontma
     throw new Error(`${path} ogImage must be a string`);
   }
 
+  if (value.cover !== undefined && typeof value.cover !== "string") {
+    throw new Error(`${path} cover must be a string`);
+  }
+
   return {
     title,
     topic,
@@ -82,6 +86,7 @@ export const assertPostFrontmatter = (value: unknown, path: string): PostFrontma
     tags,
     draft: value.draft,
     ogImage: value.ogImage,
+    cover: value.cover,
   };
 };
 
