@@ -1,10 +1,13 @@
 import { Link } from "react-router";
 
-import { Badge } from "~/components/ui/badge";
+import { getTopicVisual } from "~/components/blog/topic-visuals";
+import { cn } from "~/lib/utils";
+
+import type { TopicSlug } from "~/lib/content";
 
 type TopicLink = {
   label: string;
-  slug: string;
+  slug: TopicSlug;
 };
 
 type BlogPageHeaderProps = {
@@ -34,9 +37,16 @@ const BlogPageHeader = ({ description, eyebrow, title, topicLinks = [] }: BlogPa
     {topicLinks.length > 0 ? (
       <div className="mt-6 flex flex-wrap gap-2">
         {topicLinks.map((topic) => (
-          <Badge key={topic.slug} variant="outline">
-            <Link to={`/blog/${topic.slug}`}>{topic.label}</Link>
-          </Badge>
+          <Link
+            className={cn(
+              "rounded-full border px-3 py-1 text-sm font-medium",
+              getTopicVisual(topic.slug).badge,
+            )}
+            key={topic.slug}
+            to={`/blog/${topic.slug}`}
+          >
+            {topic.label}
+          </Link>
         ))}
       </div>
     ) : null}
